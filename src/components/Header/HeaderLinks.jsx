@@ -18,19 +18,33 @@ import Button from "components/CustomButtons/Button.jsx";
 
 import headerLinksStyle from "assets/jss/material-kit-react/components/headerLinksStyle.jsx";
 
+import { logout } from "../LoginPage/auth.js"
+
 function HeaderLinks({ ...props }) {
-  const { classes } = props;
+  const { classes, user } = props;
   return (
     <List className={classes.list}>
+      {user && 
+        <ListItem className={classes.listItem}>
+          <Link to="/mispromedios" className={classes.navLink}> 
+            Mis promedios
+          </Link>
+        </ListItem>
+      }
       <ListItem className={classes.listItem}>
-        <Link to="/mispromedios" className={classes.navLink}> 
-          Mis promedios
-        </Link>
-      </ListItem>
-      <ListItem className={classes.listItem}>
-        <Link to="/login" className={classes.navLink}> 
-          Iniciar sesión
-        </Link>
+        {user ?
+          <Button 
+            color="transparent" 
+            onClick={() => logout()} 
+            className={classes.navLink}
+            > 
+            Cerrar sesión
+          </Button>
+          :
+          <Link to="/login" className={classes.navLink}> 
+            Iniciar sesión
+          </Link>
+        }
       </ListItem>
     </List>
   );

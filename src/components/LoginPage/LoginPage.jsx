@@ -7,8 +7,6 @@ import Icon from "@material-ui/core/Icon";
 import Email from "@material-ui/icons/Email";
 import People from "@material-ui/icons/People";
 // core components
-import Header from "components/Header/Header.jsx";
-import HeaderLinks from "components/Header/HeaderLinks.jsx";
 import Footer from "components/Footer/Footer.jsx";
 import GridContainer from "components/Grid/GridContainer.jsx";
 import GridItem from "components/Grid/GridItem.jsx";
@@ -22,6 +20,8 @@ import CustomInput from "components/CustomInput/CustomInput.jsx";
 import loginPageStyle from "assets/jss/material-kit-react/views/loginPage.jsx";
 
 import image from "assets/img/bg7.jpg";
+
+import { login } from "./auth.js"
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -41,7 +41,7 @@ class LoginPage extends React.Component {
     );
   }
   render() {
-    const { classes, ...rest } = this.props;
+    const { classes } = this.props;
     return (
       <div>
         <div
@@ -62,38 +62,32 @@ class LoginPage extends React.Component {
                       <div className={classes.socialLine}>
                         <Button
                           justIcon
-                          href="#pablo"
-                          target="_blank"
                           color="transparent"
-                          onClick={e => e.preventDefault()}
+                          onClick={() => login("github")}
                         >
-                          <i className={"fab fa-twitter"} />
+                          <i className={"fab fa-github"} />
                         </Button>
                         <Button
                           justIcon
-                          href="#pablo"
-                          target="_blank"
                           color="transparent"
-                          onClick={e => e.preventDefault()}
+                          onClick={() => login("facebook")}
                         >
                           <i className={"fab fa-facebook"} />
                         </Button>
                         <Button
                           justIcon
-                          href="#pablo"
-                          target="_blank"
                           color="transparent"
-                          onClick={e => e.preventDefault()}
+                          onClick={() => login("google")}
                         >
                           <i className={"fab fa-google-plus-g"} />
                         </Button>
                       </div>
                     </CardHeader>
-                    <p className={classes.divider}>Or Be Classical</p>
+                    <p className={classes.divider}>O crea una cuenta</p>
                     <CardBody>
                       <CustomInput
-                        labelText="First Name..."
-                        id="first"
+                        labelText="Nombre..."
+                        id="name"
                         formControlProps={{
                           fullWidth: true
                         }}
@@ -148,8 +142,8 @@ class LoginPage extends React.Component {
                 </Card>
               </GridItem>
             </GridContainer>
-          </div>
-          <Footer whiteFont />
+            </div>
+            <Footer whiteFont />
         </div>
       </div>
     );

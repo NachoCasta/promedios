@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './App.css';
 
 import "assets/scss/material-kit-react.scss";
@@ -6,30 +6,35 @@ import "assets/scss/material-kit-react.scss";
 import { Router, Route } from 'react-router-dom';
 import createBrowserHistory from "history/createBrowserHistory";
 
+
+import { auth } from "components/firebase.js"
+import { useAuthState } from 'react-firebase-hooks/auth';
+
+
 import { 
   NavBar,
   LandingPage,
   ProfilePage,
-  LoginPage,
-  Footer
+  LoginPage
 } from "./components";
 
 
-const history = createBrowserHistory()
+export const history = createBrowserHistory()
 
-class App extends Component {
-  render() {
-    return (
-      <Router history={history}>
-        <div className="App">
-          <NavBar />
-          <Route exact path="/" component={LandingPage} />
-          <Route path="/mispromedios" component={ProfilePage} />
-          <Route path="/login" component={LoginPage} />
-        </div>
-      </Router>
-    );
-  }
+function App(props){
+  const { user } = useAuthState(auth);
+  return (
+    <Router history={history}>
+      <div className="App">
+        <NavBar />
+        <Route exact path="/" component={LandingPage} />
+        {user &&
+          <Route path="/mispromedios" render={() => <ProfilePage user={user} />} />
+        }
+        <Route path="/login" component={LoginPage} />
+      </div>
+    </Router>
+  );
 }
 
 export default App;
