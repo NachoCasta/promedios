@@ -32,8 +32,8 @@ Esta aplicación permite calcular tu promedio general facilmente y tiene la vent
 	- [ ] Crear plantillas
 	- [ ] Usar plantillas ya existentes
 	- [ ] Ingresar y modificar notas
-	- [ ] Calculo de promedio
-	- [ ] ¿Cuanto necesito para pasar?
+	- [ ] Cálculo de promedio
+	- [ ] ¿Cuánto necesito para pasar?
 	- [ ] Exportar a <...>
 
 
