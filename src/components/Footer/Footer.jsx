@@ -38,8 +38,8 @@ function Footer({ ...props }) {
           </List>
         </div>
         <div className={classes.right}>
-          &copy; {1900 + new Date().getYear()} , made with{" "}
-          <Favorite className={classes.icon} />{" "}in Santiago, Chile.{" "}
+          &copy; {1900 + new Date().getYear()} , creado con{" "}
+          <Favorite className={classes.icon} />{" "}en Santiago, Chile.{" "}
           <a
             href="https://github.com/NachoCasta/TuPromedio"
             target="_blank"
