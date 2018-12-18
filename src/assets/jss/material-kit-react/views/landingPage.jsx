@@ -33,7 +33,8 @@ const landingPageStyle = {
   },
   parallax: {
     padding: "100px 0",
-    height: "100%"
+    height: "100%",
+    minHeight: "300px"
   }
 };
 

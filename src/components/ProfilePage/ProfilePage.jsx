@@ -8,9 +8,11 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import Footer from "components/Footer/Footer.jsx";
 import GridContainer from "components/Grid/GridContainer.jsx";
 import GridItem from "components/Grid/GridItem.jsx";
-import Parallax from "components/Parallax/Parallax.jsx";
 
 import profilePageStyle from "assets/jss/material-kit-react/views/profilePage.jsx";
+
+import { ListaRamos, ListaRamosItem } from "components/Ramos/ListaRamos.jsx"
+import { ListaNotas, ListaNotasConjunto, ListaNotasItem } from "components/Ramos/ListaNotas.jsx"
 
 
 function ProfilePage(props){
@@ -22,7 +24,6 @@ function ProfilePage(props){
   );
   return (
     <div>
-      <Parallax small filter image={require("assets/img/profile-bg.jpg")} />
       <div className={classNames(classes.main, classes.mainRaised)}>
         <div>
           <div className={classes.container}>
@@ -47,123 +48,33 @@ function ProfilePage(props){
                 intimate feel with a solid groove structure.{" "}
               </p>
             </div>
+            */}
             <GridContainer justify="center">
               <GridItem xs={12} sm={12} md={8} className={classes.navWrapper}>
-                <NavPills
-                  alignCenter
-                  color="primary"
-                  tabs={[
-                    {
-                      tabButton: "Studio",
-                      tabIcon: Camera,
-                      tabContent: (
-                        <GridContainer justify="center">
-                          <GridItem xs={12} sm={12} md={4}>
-                            <img
-                              alt="..."
-                              src={studio1}
-                              className={navImageClasses}
-                            />
-                            <img
-                              alt="..."
-                              src={studio2}
-                              className={navImageClasses}
-                            />
-                          </GridItem>
-                          <GridItem xs={12} sm={12} md={4}>
-                            <img
-                              alt="..."
-                              src={studio5}
-                              className={navImageClasses}
-                            />
-                            <img
-                              alt="..."
-                              src={studio4}
-                              className={navImageClasses}
-                            />
-                          </GridItem>
-                        </GridContainer>
-                      )
-                    },
-                    {
-                      tabButton: "Work",
-                      tabIcon: Palette,
-                      tabContent: (
-                        <GridContainer justify="center">
-                          <GridItem xs={12} sm={12} md={4}>
-                            <img
-                              alt="..."
-                              src={work1}
-                              className={navImageClasses}
-                            />
-                            <img
-                              alt="..."
-                              src={work2}
-                              className={navImageClasses}
-                            />
-                            <img
-                              alt="..."
-                              src={work3}
-                              className={navImageClasses}
-                            />
-                          </GridItem>
-                          <GridItem xs={12} sm={12} md={4}>
-                            <img
-                              alt="..."
-                              src={work4}
-                              className={navImageClasses}
-                            />
-                            <img
-                              alt="..."
-                              src={work5}
-                              className={navImageClasses}
-                            />
-                          </GridItem>
-                        </GridContainer>
-                      )
-                    },
-                    {
-                      tabButton: "Favorite",
-                      tabIcon: Favorite,
-                      tabContent: (
-                        <GridContainer justify="center">
-                          <GridItem xs={12} sm={12} md={4}>
-                            <img
-                              alt="..."
-                              src={work4}
-                              className={navImageClasses}
-                            />
-                            <img
-                              alt="..."
-                              src={studio3}
-                              className={navImageClasses}
-                            />
-                          </GridItem>
-                          <GridItem xs={12} sm={12} md={4}>
-                            <img
-                              alt="..."
-                              src={work2}
-                              className={navImageClasses}
-                            />
-                            <img
-                              alt="..."
-                              src={work1}
-                              className={navImageClasses}
-                            />
-                            <img
-                              alt="..."
-                              src={studio1}
-                              className={navImageClasses}
-                            />
-                          </GridItem>
-                        </GridContainer>
-                      )
-                    }
-                  ]}
-                />
+                <ListaRamos>
+                  <ListaRamosItem sigla="MAT1610" nombre="Calculo I" nota={5.8}>
+                    <ListaNotas>
+                      <ListaNotasConjunto nombre="Interrogaciones" ponderacion="60%" nota="5.4">
+                        <ListaNotasItem nombre="Interrogación 1" ponderacion="33.3%" nota="6.0" />
+                        <ListaNotasItem nombre="Interrogación 2" ponderacion="33.3%" nota="4.5" />
+                        <ListaNotasItem nombre="Interrogación 3" ponderacion="33.3%" nota="5.7" />
+                      </ListaNotasConjunto>
+                      <ListaNotasConjunto nombre="Laboratorios" ponderacion="10%" nota="6.0">
+                        <ListaNotasItem nombre="Laboratorio 1" ponderacion="20%" nota="6.0" />
+                        <ListaNotasItem nombre="Laboratorio 2" ponderacion="20%" nota="5.0" />
+                        <ListaNotasItem nombre="Laboratorio 3" ponderacion="20%" nota="5.6" />
+                        <ListaNotasItem nombre="Laboratorio 4" ponderacion="20%" nota="6.4" />
+                        <ListaNotasItem nombre="Laboratorio 5" ponderacion="20%" nota="7.0" />
+                      </ListaNotasConjunto>
+                      <ListaNotasConjunto nombre="Examen" ponderacion="30%" nota="6.5" />
+                    </ListaNotas>
+                  </ListaRamosItem>
+                  <ListaRamosItem sigla="MAT1203" nombre="Algebra Lineal" nota={5.5}>
+                    No cacho men.
+                  </ListaRamosItem>
+                </ListaRamos>
               </GridItem>
             </GridContainer>
-          */}
           </div>
         </div>
       </div>

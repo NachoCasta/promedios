@@ -15,7 +15,8 @@ import {
   NavBar,
   LandingPage,
   ProfilePage,
-  LoginPage
+  LoginPage,
+  MyParallax
 } from "./components";
 
 
@@ -27,6 +28,7 @@ function App(props){
     <Router history={history}>
       <div className="App">
         <NavBar />
+        <Route path="/(|mispromedios)" component={MyParallax} />
         <Route exact path="/" component={LandingPage} />
         {user &&
           <Route path="/mispromedios" render={() => <ProfilePage user={user} />} />

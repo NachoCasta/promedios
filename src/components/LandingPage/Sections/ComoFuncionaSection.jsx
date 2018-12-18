@@ -5,7 +5,7 @@ import withStyles from "@material-ui/core/styles/withStyles";
 // @material-ui/icons
 import Add from "@material-ui/icons/PlaylistAdd";
 import Notas from "@material-ui/icons/Done";
-import Sigue from "@material-ui/icons/Autorenew";
+import Sigue from "@material-ui/icons/ShowChart";
 // core components
 import GridContainer from "components/Grid/GridContainer.jsx";
 import GridItem from "components/Grid/GridItem.jsx";
