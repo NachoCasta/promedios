@@ -28,11 +28,12 @@ Esta aplicación permite calcular tu promedio general facilmente y tiene la vent
 	- [ ] Notas
 		- [x] UX
 		- [ ] UI
+	- [ ] Desde base de datos
 - [ ] Features
-	- [ ] Crear plantillas
-	- [ ] Usar plantillas ya existentes
-	- [ ] Ingresar y modificar notas
 	- [ ] Cálculo de promedio
+	- [ ] Crear plantillas
+	- [ ] Usar plantillas creadas por otros usuarios
+	- [ ] Ingresar y modificar notas
 	- [ ] ¿Cuánto necesito para pasar?
 	- [ ] Exportar a <...>
 
