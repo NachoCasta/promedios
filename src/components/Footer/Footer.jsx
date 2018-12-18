@@ -39,14 +39,14 @@ function Footer({ ...props }) {
         </div>
         <div className={classes.right}>
           &copy; {1900 + new Date().getYear()} , made with{" "}
-          <Favorite className={classes.icon} /> and{" "}
+          <Favorite className={classes.icon} />{" "}in Santiago, Chile.{" "}
           <a
-            href="https://reactjs.org/"
-            className={aClasses}
+            href="https://github.com/NachoCasta/TuPromedio"
             target="_blank"
+            rel="noopener noreferrer"
           >
-            React
-          </a>{" "}in Santiago, Chile.
+            <span className="fa fa-code" />{" "}See source code
+          </a>.
         </div>
       </div>
     </footer>
