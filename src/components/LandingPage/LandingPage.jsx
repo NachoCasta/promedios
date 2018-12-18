@@ -17,7 +17,6 @@ import landingPageStyle from "assets/jss/material-kit-react/views/landingPage.js
 // Sections for this page
 import ComoFuncionaSection from "./Sections/ComoFuncionaSection.jsx";
 
-
 function LandingPage(props) {
   const { classes } = props;
   return (

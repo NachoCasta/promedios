@@ -1,17 +1,15 @@
-import React from 'react';
-import './App.css';
+import React from "react";
+import "./App.css";
 
 import "assets/scss/material-kit-react.scss";
 
-import { Router, Route } from 'react-router-dom';
+import { Router, Route } from "react-router-dom";
 import createBrowserHistory from "history/createBrowserHistory";
 
+import { auth } from "components/firebase.js";
+import { useAuthState } from "react-firebase-hooks/auth";
 
-import { auth } from "components/firebase.js"
-import { useAuthState } from 'react-firebase-hooks/auth';
-
-
-import { 
+import {
   NavBar,
   LandingPage,
   ProfilePage,
@@ -19,10 +17,9 @@ import {
   MyParallax
 } from "./components";
 
+export const history = createBrowserHistory();
 
-export const history = createBrowserHistory()
-
-function App(props){
+function App(props) {
   const { user } = useAuthState(auth);
   return (
     <Router history={history}>
@@ -30,9 +27,12 @@ function App(props){
         <NavBar />
         <Route path="/(|mispromedios)" component={MyParallax} />
         <Route exact path="/" component={LandingPage} />
-        {user &&
-          <Route path="/mispromedios" render={() => <ProfilePage user={user} />} />
-        }
+        {user && (
+          <Route
+            path="/mispromedios"
+            render={() => <ProfilePage user={user} />}
+          />
+        )}
         <Route path="/login" component={LoginPage} />
       </div>
     </Router>

@@ -21,7 +21,7 @@ import loginPageStyle from "assets/jss/material-kit-react/views/loginPage.jsx";
 
 import image from "assets/img/bg7.jpg";
 
-import { login } from "./auth.js"
+import { login } from "./auth.js";
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -142,8 +142,8 @@ class LoginPage extends React.Component {
                 </Card>
               </GridItem>
             </GridContainer>
-            </div>
-            <Footer whiteFont />
+          </div>
+          <Footer whiteFont />
         </div>
       </div>
     );
