@@ -8,7 +8,6 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
 
 const styles = theme => ({
   table: {
@@ -45,7 +44,7 @@ ListaNotasComponent.propTypes = {
 };
 
 function ListaNotasConjuntoComponent(props) {
-  const { children, classes } = props;
+  const { children } = props;
   const { nombre, ponderacion, nota } = props;
   return (
     <React.Fragment>

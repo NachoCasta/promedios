@@ -1,5 +1,6 @@
 import firebase from "firebase/app";
 import "firebase/auth";
+import "firebase/firestore";
 
 const config = {
 	apiKey: "AIzaSyCWX7TMzBkRDNmT0WUcOiDXZ87UrtWmpqQ",
@@ -29,6 +30,7 @@ export function getAuth(provider) {
 }
 
 export const auth = firebase.auth();
+export const db = firebase.firestore();
 
 export function isAdmin() {
 	if (auth.currentUser) {

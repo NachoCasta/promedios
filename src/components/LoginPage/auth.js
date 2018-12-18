@@ -4,6 +4,8 @@ import { isMobile } from "react-device-detect";
 
 import { history } from "App.js";
 
+import { db } from "components/firebase.js";
+
 export function login(provider) {
   const signer = authProvider => {
     if (isMobile) {
@@ -14,7 +16,17 @@ export function login(provider) {
   };
   signer(getAuth(provider)).then(result => {
     const user = result.user;
-    console.log("Login succesful: ", user);
+    const userData = {
+      name: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL
+    };
+    if (result.additionalUserInfo.isUserNew) {
+      db.collection("users")
+        .doc(user.uid)
+        .set(userData);
+    }
+    console.log("Login succesful: ", userData.email);
     history.push("/mispromedios");
   });
 }
