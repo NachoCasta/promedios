@@ -1,17 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import PropTypes from "prop-types";
 
-import Paper from "@material-ui/core/Paper";
+import CancelIcon from "@material-ui/icons/Cancel";
+import EditIcon from "@material-ui/icons/Edit";
+import SaveIcon from "@material-ui/icons/Save";
 
 import { useValue } from "components/Hooks/DocumentValue.jsx";
+
+import useNotasReducer from "components/Hooks/NotasReducer.jsx";
 
 import { db } from "components/firebase.js";
 
 import {
 	ListaNotas,
 	ListaNotasConjunto,
-	ListaNotasItem
+	ListaNotasItem,
+	MenuButton
 } from "./ListaNotas.jsx";
 
 import { ListaRamos, ListaRamosItem } from "./ListaRamos.jsx";
@@ -75,20 +80,75 @@ function Ramo(props) {
 	if (!(ramo.evaluaciones && notas.evaluaciones)) {
 		return <div />;
 	}
-	const evaluaciones = transformEvaluaciones(
-		ramo.evaluaciones,
-		notas.evaluaciones
-	);
+
+	const [state, dispatch] = useNotasReducer({
+		notas: JSON.parse(JSON.stringify(notas.evaluaciones)),
+		ramo: JSON.parse(JSON.stringify(ramo)),
+		editingNotas: false,
+		editingRamo: false
+	});
+
+	let ramoAux = [];
+	let notasAux = {};
+
+	if (state.editingNotas) {
+		ramoAux = state.ramo.evaluaciones;
+		notasAux = state.notas;
+	} else {
+		ramoAux = ramo.evaluaciones;
+		notasAux = notas.evaluaciones;
+	}
+
+	const { evaluaciones, promedio } = transformEvaluaciones(ramoAux, notasAux);
 
 	return (
-		<ListaRamosItem sigla={sigla} nombre={nombre} nota={5.8}>
-			<ListaNotas>
+		<ListaRamosItem sigla={sigla} nombre={nombre} nota={promedio}>
+			<ListaNotas
+				actions={
+					state.editingNotas ? (
+						<React.Fragment>
+							<MenuButton
+								label="Guardar"
+								onClick={() =>
+									dispatch({
+										type: "guardarNotas",
+										ref: db.collection("notas").doc(notasRef.id)
+									})
+								}
+							>
+								<SaveIcon />
+							</MenuButton>
+							<MenuButton
+								label="Cancelar"
+								onClick={() => dispatch({ type: "toggleEdit" })}
+							>
+								<CancelIcon />
+							</MenuButton>
+						</React.Fragment>
+					) : (
+						<MenuButton
+							label="Editar"
+							onClick={() => dispatch({ type: "toggleEdit" })}
+						>
+							<EditIcon />
+						</MenuButton>
+					)
+				}
+			>
 				{evaluaciones.map((conjunto, i) => (
 					<ListaNotasConjunto
 						key={i}
 						nombre={conjunto.nombre}
 						ponderacion={conjunto.ponderacion}
 						nota={conjunto.nota}
+						editingNotas={state.editingNotas}
+						onChangeNota={e =>
+							dispatch({
+								type: "handleNotaUnicaChange",
+								conjunto: conjunto.nombre,
+								value: e.target.value
+							})
+						}
 					>
 						{conjunto.evaluaciones &&
 							conjunto.evaluaciones.map((evaluacion, i) => (
@@ -97,6 +157,15 @@ function Ramo(props) {
 									nombre={evaluacion.nombre}
 									ponderacion={evaluacion.ponderacion}
 									nota={evaluacion.nota}
+									editing={state.editingNotas}
+									onChangeNota={e =>
+										dispatch({
+											type: "handleNotaChange",
+											conjunto: conjunto.nombre,
+											evaluacion: evaluacion.nombre,
+											value: e.target.value
+										})
+									}
 								/>
 							))}
 					</ListaNotasConjunto>
@@ -172,15 +241,21 @@ function transformEvaluaciones(plantilla, notas) {
 			nota: calcNota(newEval)
 		};
 	});
-	return evaluaciones;
+	const promedio = calcNota(evaluaciones);
+	return { evaluaciones, promedio };
 }
 
 function calcNota(evaluaciones) {
 	let nota = 0;
+	let total = 0;
 	evaluaciones.map(evaluacion => {
-		return (nota += (evaluacion.nota * evaluacion.ponderacion) / 100);
+		if (evaluacion.nota !== "") {
+			total += parseFloat(evaluacion.ponderacion);
+			nota += (evaluacion.nota * evaluacion.ponderacion) / 100;
+		}
+		return null;
 	});
-	return nota;
+	return (nota * 100) / total;
 }
 
 export default RamosSection;

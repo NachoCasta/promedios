@@ -2,16 +2,125 @@ import React from "react";
 
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
+import classNames from "classnames";
 
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import Paper from "@material-ui/core/Paper";
+import TextField from "@material-ui/core/TextField";
+import IconButton from "@material-ui/core/IconButton";
+import Tooltip from "@material-ui/core/Tooltip";
+
+import Grid from "@material-ui/core/Grid";
+
+//import DeleteIcon from "@material-ui/icons/Delete";
+
+import { lighten } from "@material-ui/core/styles/colorManipulator";
+
+const toolbarStyles = theme => ({
+  root: {
+    paddingRight: theme.spacing.unit,
+    width: "100%"
+  },
+  highlight:
+    theme.palette.type === "light"
+      ? {
+          color: theme.palette.secondary.main,
+          backgroundColor: lighten(theme.palette.secondary.light, 0.85)
+        }
+      : {
+          color: theme.palette.text.primary,
+          backgroundColor: theme.palette.secondary.dark
+        },
+  spacer: {
+    flex: "1 1 100%"
+  },
+  actions: {
+    color: theme.palette.text.secondary,
+    position: "relative",
+    float: "right",
+    align: "right"
+  },
+  title: {
+    flex: "0 0 auto"
+  }
+});
+
+let ListaNotasMenuComponent = props => {
+  const { editing, classes, children } = props;
+
+  return (
+    <Toolbar
+      className={classNames(classes.root, {
+        [classes.highlight]: editing
+      })}
+    >
+      <Grid justify="space-between" container className={classes.grid}>
+        <Grid item className={classes.title}>
+          <Typography variant="h4" id="tableTitle">
+            Notas
+          </Typography>
+        </Grid>
+        <Grid item className={classes.actions}>
+          {children}
+        </Grid>
+      </Grid>
+    </Toolbar>
+  );
+};
+
+ListaNotasMenuComponent.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+
+export const ListaNotasMenu = withStyles(toolbarStyles)(
+  ListaNotasMenuComponent
+);
+
+const buttonStyles = theme => ({});
+
+let MenuButtonComponent = props => {
+  const { classes, children, onClick, label } = props;
+
+  return (
+    <Tooltip title={label} className={classes.tooltip}>
+      <IconButton
+        className={classes.button}
+        onClick={onClick}
+        aria-label={label}
+      >
+        {children}
+      </IconButton>
+    </Tooltip>
+  );
+};
+
+MenuButtonComponent.propTypes = {
+  classes: PropTypes.object.isRequired
+};
+
+export const MenuButton = withStyles(buttonStyles)(MenuButtonComponent);
 
 const styles = theme => ({
+  root: {
+    width: "100%",
+    marginTop: theme.spacing.unit
+  },
   table: {
     minWidth: 500
+  },
+  textField: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+    width: 50
+  },
+  input: {
+    padding: "6px 12px"
   },
   tableWrapper: {
     overflowX: "auto",
@@ -23,20 +132,23 @@ const styles = theme => ({
 });
 
 function ListaNotasComponent(props) {
-  const { children, classes } = props;
+  const { children, classes, actions } = props;
   return (
-    <div className={classes.tableWrapper}>
-      <Table className={classes.table}>
-        <TableHead>
-          <TableRow>
-            <TableCell>Evaluación</TableCell>
-            <TableCell>Ponderación</TableCell>
-            <TableCell>Nota</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>{children}</TableBody>
-      </Table>
-    </div>
+    <Paper className={classes.root}>
+      <ListaNotasMenu>{actions}</ListaNotasMenu>
+      <div className={classes.tableWrapper}>
+        <Table className={classes.table}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Evaluación</TableCell>
+              <TableCell>Ponderación</TableCell>
+              <TableCell>Nota</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>{children}</TableBody>
+        </Table>
+      </div>
+    </Paper>
   );
 }
 ListaNotasComponent.propTypes = {
@@ -44,14 +156,37 @@ ListaNotasComponent.propTypes = {
 };
 
 function ListaNotasConjuntoComponent(props) {
-  const { children } = props;
-  const { nombre, ponderacion, nota } = props;
+  const {
+    nombre,
+    ponderacion,
+    nota,
+    editingNotas,
+    onChangeNota,
+    children,
+    classes
+  } = props;
   return (
     <React.Fragment>
       <TableRow selected>
         <TableCell>{titleCase(nombre)}</TableCell>
         <TableCell>{toPerc(ponderacion)}</TableCell>
-        <TableCell>{nota.toFixed(1)}</TableCell>
+
+        <TableCell>
+          {editingNotas && !children ? (
+            <TextField
+              id="standard-bare"
+              className={classes.textField}
+              inputProps={{ className: classes.input }}
+              value={nota}
+              max={7}
+              margin="normal"
+              onChange={onChangeNota}
+              variant="filled"
+            />
+          ) : (
+            parseFloat(nota).toFixed(1)
+          )}
+        </TableCell>
       </TableRow>
       {children}
     </React.Fragment>
@@ -63,18 +198,37 @@ ListaNotasConjuntoComponent.propTypes = {
 };
 
 function ListaNotasItemComponent(props) {
-  const { nombre, ponderacion, nota, classes } = props;
+  const { nombre, ponderacion, nota, classes, editing, onChangeNota } = props;
   return (
     <TableRow>
       <TableCell className={classes.item}>{titleCase(nombre)}</TableCell>
       <TableCell className={classes.item}>{toPerc(ponderacion)}</TableCell>
-      <TableCell className={classes.item}>{nota.toFixed(1)}</TableCell>
+      <TableCell className={classes.item}>
+        {editing ? (
+          <TextField
+            id="standard-bare"
+            className={classes.textField}
+            inputProps={{ className: classes.input }}
+            value={nota}
+            max={7}
+            margin="normal"
+            onChange={onChangeNota}
+            variant="filled"
+          />
+        ) : (
+          parseFloat(nota).toFixed(1)
+        )}
+      </TableCell>
     </TableRow>
   );
 }
 
 ListaNotasItemComponent.propTypes = {
   classes: PropTypes.object.isRequired
+};
+
+ListaNotasItemComponent.defaultProps = {
+  editing: false
 };
 
 function titleCase(str) {
