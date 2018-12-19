@@ -36,7 +36,8 @@ class NavPills extends React.Component {
       direction,
       color,
       horizontal,
-      alignCenter
+      alignCenter,
+      ...rest
     } = this.props;
     const flexContainerClasses = classNames({
       [classes.flexContainer]: true,
@@ -50,6 +51,7 @@ class NavPills extends React.Component {
           flexContainer: flexContainerClasses,
           indicator: classes.displayNone
         }}
+        {...rest}
         value={this.state.active}
         onChange={this.handleChange}
         centered={alignCenter}

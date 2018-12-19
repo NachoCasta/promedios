@@ -21,7 +21,8 @@ export function login(provider) {
       email: user.email,
       photoURL: user.photoURL
     };
-    if (result.additionalUserInfo.isUserNew) {
+    if (result.additionalUserInfo.isNewUser) {
+      console.log("Usuario creado");
       db.collection("users")
         .doc(user.uid)
         .set(userData);

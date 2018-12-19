@@ -6,8 +6,7 @@ import "assets/scss/material-kit-react.scss";
 import { Router, Route } from "react-router-dom";
 import createBrowserHistory from "history/createBrowserHistory";
 
-import { auth } from "components/firebase.js";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useUser } from "components/Hooks/User.jsx";
 
 import {
   NavBar,
@@ -20,7 +19,7 @@ import {
 export const history = createBrowserHistory();
 
 function App(props) {
-  const { user } = useAuthState(auth);
+  const { user } = useUser();
   return (
     <Router history={history}>
       <div className="App">

@@ -30,7 +30,10 @@ export function getAuth(provider) {
 }
 
 export const auth = firebase.auth();
-export const db = firebase.firestore();
+const firestore = firebase.firestore();
+const settings = { timestampsInSnapshots: true };
+firestore.settings(settings);
+export const db = firestore;
 
 export function isAdmin() {
 	if (auth.currentUser) {

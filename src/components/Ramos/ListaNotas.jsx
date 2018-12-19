@@ -49,9 +49,9 @@ function ListaNotasConjuntoComponent(props) {
   return (
     <React.Fragment>
       <TableRow selected>
-        <TableCell>{nombre}</TableCell>
-        <TableCell>{ponderacion}</TableCell>
-        <TableCell>{nota}</TableCell>
+        <TableCell>{titleCase(nombre)}</TableCell>
+        <TableCell>{toPerc(ponderacion)}</TableCell>
+        <TableCell>{nota.toFixed(1)}</TableCell>
       </TableRow>
       {children}
     </React.Fragment>
@@ -66,9 +66,9 @@ function ListaNotasItemComponent(props) {
   const { nombre, ponderacion, nota, classes } = props;
   return (
     <TableRow>
-      <TableCell className={classes.item}>{nombre}</TableCell>
-      <TableCell className={classes.item}>{ponderacion}</TableCell>
-      <TableCell className={classes.item}>{nota}</TableCell>
+      <TableCell className={classes.item}>{titleCase(nombre)}</TableCell>
+      <TableCell className={classes.item}>{toPerc(ponderacion)}</TableCell>
+      <TableCell className={classes.item}>{nota.toFixed(1)}</TableCell>
     </TableRow>
   );
 }
@@ -76,6 +76,22 @@ function ListaNotasItemComponent(props) {
 ListaNotasItemComponent.propTypes = {
   classes: PropTypes.object.isRequired
 };
+
+function titleCase(str) {
+  var splitStr = str
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .split(" ");
+  for (var i = 0; i < splitStr.length; i++) {
+    splitStr[i] =
+      splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+  }
+  return splitStr.join(" ");
+}
+
+function toPerc(n) {
+  return (Math.round(n * 10) / 10).toString() + " %";
+}
 
 const ListaNotas = withStyles(styles)(ListaNotasComponent);
 const ListaNotasConjunto = withStyles(styles)(ListaNotasConjuntoComponent);
