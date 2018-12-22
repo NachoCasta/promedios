@@ -14,35 +14,37 @@ export default function useNotasReducer(initialState) {
         nota = action.value;
         if (isNaN(nota)) {
           nota = "";
-        } else if ((parseFloat(nota) > 7) | (parseFloat(nota) < 1)) {
+        } else if (parseFloat(nota) >= 10 && parseFloat(nota) / 10 <= 7) {
+          nota = parseFloat(nota) / 10;
+        } else if ((parseFloat(nota) < 1) | (parseFloat(nota) > 7)) {
           return state;
         }
-        return {
-          ...state,
-          notas: {
-            ...state.notas,
-            [action.conjunto]: {
-              ...state.notas[action.conjunto],
-              [action.evaluacion]: nota
-            }
-          }
-        };
-      case "handleNotaUnicaChange":
-        nota = action.value;
-        if (isNaN(nota)) {
-          nota = "";
-        } else if ((parseFloat(nota) > 7) | (parseFloat(nota) < 1)) {
-          return state;
+        switch (action.unica) {
+          case true:
+            return {
+              ...state,
+              notas: {
+                ...state.notas,
+                [action.conjunto]: nota
+              }
+            };
+          default:
+            return {
+              ...state,
+              notas: {
+                ...state.notas,
+                [action.conjunto]: {
+                  ...state.notas[action.conjunto],
+                  [action.evaluacion]: nota
+                }
+              }
+            };
         }
-        return {
-          ...state,
-          notas: {
-            ...state.notas,
-            [action.conjunto]: nota
-          }
-        };
       case "guardarNotas":
-        action.ref.update({ evaluaciones: state.notas });
+        action.ref.update({
+          evaluaciones: state.notas,
+          promedio: action.promedio
+        });
         return {
           ...state,
           editingNotas: false

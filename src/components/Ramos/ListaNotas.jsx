@@ -22,6 +22,14 @@ import Grid from "@material-ui/core/Grid";
 
 import { lighten } from "@material-ui/core/styles/colorManipulator";
 
+const CustomTableCell = withStyles(theme => ({
+  head: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white
+  },
+  body: {}
+}))(TableCell);
+
 const toolbarStyles = theme => ({
   root: {
     paddingRight: theme.spacing.unit,
@@ -140,9 +148,9 @@ function ListaNotasComponent(props) {
         <Table className={classes.table}>
           <TableHead>
             <TableRow>
-              <TableCell>Evaluación</TableCell>
-              <TableCell>Ponderación</TableCell>
-              <TableCell>Nota</TableCell>
+              <CustomTableCell>Evaluación</CustomTableCell>
+              <CustomTableCell>Ponderación</CustomTableCell>
+              <CustomTableCell>Nota</CustomTableCell>
             </TableRow>
           </TableHead>
           <TableBody>{children}</TableBody>
@@ -167,11 +175,11 @@ function ListaNotasConjuntoComponent(props) {
   } = props;
   return (
     <React.Fragment>
-      <TableRow selected>
-        <TableCell>{titleCase(nombre)}</TableCell>
-        <TableCell>{toPerc(ponderacion)}</TableCell>
+      <TableRow selected className={classes.selected}>
+        <CustomTableCell>{titleCase(nombre)}</CustomTableCell>
+        <CustomTableCell>{toPerc(ponderacion)}</CustomTableCell>
 
-        <TableCell>
+        <CustomTableCell>
           {editingNotas && !children ? (
             <TextField
               id="standard-bare"
@@ -184,9 +192,9 @@ function ListaNotasConjuntoComponent(props) {
               variant="filled"
             />
           ) : (
-            parseFloat(nota).toFixed(1)
+            toFloat(nota)
           )}
-        </TableCell>
+        </CustomTableCell>
       </TableRow>
       {children}
     </React.Fragment>
@@ -201,9 +209,13 @@ function ListaNotasItemComponent(props) {
   const { nombre, ponderacion, nota, classes, editing, onChangeNota } = props;
   return (
     <TableRow>
-      <TableCell className={classes.item}>{titleCase(nombre)}</TableCell>
-      <TableCell className={classes.item}>{toPerc(ponderacion)}</TableCell>
-      <TableCell className={classes.item}>
+      <CustomTableCell className={classes.item}>
+        {titleCase(nombre)}
+      </CustomTableCell>
+      <CustomTableCell className={classes.item}>
+        {toPerc(ponderacion)}
+      </CustomTableCell>
+      <CustomTableCell className={classes.item}>
         {editing ? (
           <TextField
             id="standard-bare"
@@ -216,9 +228,9 @@ function ListaNotasItemComponent(props) {
             variant="filled"
           />
         ) : (
-          parseFloat(nota).toFixed(1)
+          toFloat(nota)
         )}
-      </TableCell>
+      </CustomTableCell>
     </TableRow>
   );
 }
@@ -245,6 +257,10 @@ function titleCase(str) {
 
 function toPerc(n) {
   return (Math.round(n * 10) / 10).toString() + " %";
+}
+
+function toFloat(s) {
+  return s ? parseFloat(s).toFixed(1) : s;
 }
 
 const ListaNotas = withStyles(styles)(ListaNotasComponent);

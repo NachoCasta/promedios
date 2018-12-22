@@ -1,6 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import PropTypes from "prop-types";
+
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 
 import CancelIcon from "@material-ui/icons/Cancel";
 import EditIcon from "@material-ui/icons/Edit";
@@ -112,7 +115,8 @@ function Ramo(props) {
 								onClick={() =>
 									dispatch({
 										type: "guardarNotas",
-										ref: db.collection("notas").doc(notasRef.id)
+										ref: db.collection("notas").doc(notasRef.id),
+										promedio
 									})
 								}
 							>
@@ -144,9 +148,10 @@ function Ramo(props) {
 						editingNotas={state.editingNotas}
 						onChangeNota={e =>
 							dispatch({
-								type: "handleNotaUnicaChange",
+								type: "handleNotaChange",
 								conjunto: conjunto.nombre,
-								value: e.target.value
+								value: e.target.value,
+								unica: true
 							})
 						}
 					>
@@ -241,7 +246,7 @@ function transformEvaluaciones(plantilla, notas) {
 			nota: calcNota(newEval)
 		};
 	});
-	const promedio = calcNota(evaluaciones);
+	const promedio = calcNota(evaluaciones).toFixed(2);
 	return { evaluaciones, promedio };
 }
 
