@@ -13,7 +13,7 @@ export function useUser() {
 		initialState = { notas: {} };
 	}
 	const [state, setState] = useState(initialState);
-	const { user } = useAuthState(auth);
+	const { user, initializing } = useAuthState(auth);
 	let userID = "null";
 	if (user) {
 		userID = user.uid;
@@ -31,8 +31,12 @@ export function useUser() {
 		// add event listener to save state to localStorage
 		// when user leaves/refreshes the page
 		window.addEventListener("beforeunload", writeState(state));
+		return () => {
+			window.removeEventListener("beforeunload", writeState(state));
+		};
 	});
-	return state;
+	let logged = initializing | (user !== null);
+	return { user: state, logged };
 }
 
 function writeState(state) {

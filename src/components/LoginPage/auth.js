@@ -28,13 +28,13 @@ export function login(provider) {
         .set(userData);
     }
     console.log("Login succesful: ", userData.email);
-    history.push("/mispromedios");
+    //history.push("/mispromedios");
   });
 }
 
 export function logout() {
   auth.signOut().then(() => {
     console.log("Logout succesful");
-    history.push("/login");
+    //history.push("/login");
   });
 }

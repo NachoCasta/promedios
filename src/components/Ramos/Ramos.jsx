@@ -2,12 +2,7 @@ import React, { useEffect } from "react";
 
 import PropTypes from "prop-types";
 
-import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-
-import CancelIcon from "@material-ui/icons/Cancel";
-import EditIcon from "@material-ui/icons/Edit";
-import SaveIcon from "@material-ui/icons/Save";
 
 import { useValue } from "components/Hooks/DocumentValue.jsx";
 
@@ -23,6 +18,8 @@ import {
 	ListaNotasItem,
 	MenuButton
 } from "./ListaNotas.jsx";
+
+import { Mas, Guardar, Editar, Cancelar } from "./ListaNotasMenu.jsx";
 
 import { ListaRamos, ListaRamosItem } from "./ListaRamos.jsx";
 
@@ -140,37 +137,48 @@ function Ramo(props) {
 		<ListaRamosItem sigla={sigla} nombre={nombre} nota={promedio}>
 			<ListaNotas
 				actions={
-					state.editingNotas ? (
-						<React.Fragment>
-							<MenuButton
-								label="Guardar"
+					<React.Fragment>
+						{state.editingNotas ? (
+							<React.Fragment>
+								<Guardar
+									onClick={() =>
+										dispatch({
+											type: "guardarNotas",
+											ref: db
+												.collection("notas")
+												.doc(notasRef.id),
+											promedio
+										})
+									}
+								/>
+								<Cancelar
+									onClick={() =>
+										dispatch({ type: "toggleEdit" })
+									}
+								/>
+							</React.Fragment>
+						) : (
+							<Editar
+								onClick={() => dispatch({ type: "toggleEdit" })}
+							/>
+						)}
+						<Mas>
+							<MenuItem
 								onClick={() =>
-									dispatch({
-										type: "guardarNotas",
-										ref: db
-											.collection("notas")
-											.doc(notasRef.id),
-										promedio
-									})
+									dispatch({ type: "editarPlantilla" })
 								}
 							>
-								<SaveIcon />
-							</MenuButton>
-							<MenuButton
-								label="Cancelar"
-								onClick={() => dispatch({ type: "toggleEdit" })}
+								Editar plantilla
+							</MenuItem>
+							<MenuItem
+								onClick={() =>
+									dispatch({ type: "handleBorrar" })
+								}
 							>
-								<CancelIcon />
-							</MenuButton>
-						</React.Fragment>
-					) : (
-						<MenuButton
-							label="Editar"
-							onClick={() => dispatch({ type: "toggleEdit" })}
-						>
-							<EditIcon />
-						</MenuButton>
-					)
+								Borrar ramo
+							</MenuItem>
+						</Mas>
+					</React.Fragment>
 				}
 			>
 				{evaluaciones.map((conjunto, i) => (

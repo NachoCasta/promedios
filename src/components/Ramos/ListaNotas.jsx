@@ -23,13 +23,12 @@ import Grid from "@material-ui/core/Grid";
 import { lighten } from "@material-ui/core/styles/colorManipulator";
 
 const CustomTableCell = withStyles(theme => ({
-  head: {
+  /*head: {
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white
-  },
+  },*/
   body: {}
 }))(TableCell);
-
 const toolbarStyles = theme => ({
   root: {
     paddingRight: theme.spacing.unit,
@@ -93,7 +92,7 @@ export const ListaNotasMenu = withStyles(toolbarStyles)(
 const buttonStyles = theme => ({});
 
 let MenuButtonComponent = props => {
-  const { classes, children, onClick, label } = props;
+  const { classes, children, onClick, label, ...rest } = props;
 
   return (
     <Tooltip title={label} className={classes.tooltip}>
@@ -101,6 +100,7 @@ let MenuButtonComponent = props => {
         className={classes.button}
         onClick={onClick}
         aria-label={label}
+        {...rest}
       >
         {children}
       </IconButton>

@@ -3,7 +3,7 @@ import "./App.css";
 
 import "assets/scss/material-kit-react.scss";
 
-import { Router, Route } from "react-router-dom";
+import { Router, Route, Switch, Redirect } from "react-router-dom";
 import createBrowserHistory from "history/createBrowserHistory";
 
 import { useUser } from "components/Hooks/User.jsx";
@@ -19,20 +19,27 @@ import {
 export const history = createBrowserHistory();
 
 function App(props) {
-  const user = useUser();
+  const { user, logged } = useUser();
   return (
     <Router history={history}>
       <div className="App">
         <NavBar />
         <Route path="/(|mispromedios)" component={MyParallax} />
-        <Route exact path="/" component={LandingPage} />
-        {user && (
+        <Switch>
+          <Route exact path="/" component={LandingPage} />
           <Route
             path="/mispromedios"
-            render={() => <ProfilePage user={user} />}
+            render={() =>
+              logged ? <ProfilePage user={user} /> : <Redirect to="/login" />
+            }
           />
-        )}
-        <Route path="/login" component={LoginPage} />
+          <Route
+            path="/login"
+            render={() =>
+              logged ? <Redirect to="/mispromedios" /> : <LoginPage />
+            }
+          />
+        </Switch>
       </div>
     </Router>
   );
