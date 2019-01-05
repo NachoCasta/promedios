@@ -39,6 +39,9 @@ class SemestresNavPillComponent extends React.Component {
     const { classes, children } = this.props;
     const { value } = this.state;
 
+    if (children.length === 0) {
+      return <div />;
+    }
     return (
       <div className={classes.root}>
         <AppBar position="static" color="default">

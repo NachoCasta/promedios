@@ -1,6 +1,6 @@
-import { useReducer } from "react";
+import { useLocalStorageReducer as useReducer } from "react-storage-hooks";
 
-export default function useNotasReducer(initialState) {
+export default function useNotasReducer(key, initialState) {
   function reducer(state, action) {
     console.log(action);
     let nota;
@@ -49,12 +49,22 @@ export default function useNotasReducer(initialState) {
           ...state,
           editingNotas: false
         };
+      case "updateNotas":
+        return {
+          ...state,
+          notas: action.notas
+        };
+      case "updateRamo":
+        return {
+          ...state,
+          ramo: action.ramo
+        };
       default:
         return state;
     }
   }
 
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(key, reducer, initialState);
 
   return [state, dispatch];
 }

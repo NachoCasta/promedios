@@ -19,7 +19,7 @@ import {
 export const history = createBrowserHistory();
 
 function App(props) {
-  const { user } = useUser();
+  const user = useUser();
   return (
     <Router history={history}>
       <div className="App">

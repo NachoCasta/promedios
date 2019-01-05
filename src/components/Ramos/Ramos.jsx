@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import PropTypes from "prop-types";
 
@@ -14,6 +14,8 @@ import { useValue } from "components/Hooks/DocumentValue.jsx";
 import useNotasReducer from "components/Hooks/NotasReducer.jsx";
 
 import { db } from "components/firebase.js";
+
+import deepEqual from "deep-equal";
 
 import {
 	ListaNotas,
@@ -35,7 +37,10 @@ function RamosSection(props) {
 	return (
 		<SemestresNavPill scrollable scrollButtons="auto">
 			{semestres.map(([ano, semestre]) => (
-				<SemestreTab key={ano + semestre} semestre={ano + "-" + semestre}>
+				<SemestreTab
+					key={ano + semestre}
+					semestre={ano + "-" + semestre}
+				>
 					<Semestre refs={user.notas[ano][semestre]} />
 				</SemestreTab>
 			))}
@@ -67,11 +72,17 @@ Semestre.propTypes = {
 
 function Ramo(props) {
 	const { notasRef } = props;
+	let ref = props.notasRef;
+	if (notasRef.storage) {
+		ref = db.collection("notas").doc("null");
+	}
 
-	const notas = useValue(notasRef);
+	const notas = useValue(ref);
 	let ramoRef = db.collection("ramos").doc("null");
-	if (notas.ramo) {
-		ramoRef = notas.ramo;
+	if (notas) {
+		if (notas.ramo) {
+			ramoRef = notas.ramo;
+		}
 	}
 	let ramo = useValue(ramoRef);
 
@@ -79,30 +90,51 @@ function Ramo(props) {
 		ramo = {};
 	}
 
-	const { sigla, nombre } = ramo;
-	if (!(ramo.evaluaciones && notas.evaluaciones)) {
-		return <div />;
-	}
-
-	const [state, dispatch] = useNotasReducer({
-		notas: JSON.parse(JSON.stringify(notas.evaluaciones)),
-		ramo: JSON.parse(JSON.stringify(ramo)),
+	const [state, dispatch] = useNotasReducer(notasRef.id, {
+		notas: { evaluaciones: {} },
+		ramo: { evaluaciones: [] },
 		editingNotas: false,
 		editingRamo: false
 	});
 
-	let ramoAux = [];
-	let notasAux = {};
+	const { sigla, nombre } = state.ramo;
 
-	if (state.editingNotas) {
-		ramoAux = state.ramo.evaluaciones;
-		notasAux = state.notas;
-	} else {
-		ramoAux = ramo.evaluaciones;
-		notasAux = notas.evaluaciones;
-	}
+	useEffect(() => {
+		if (notas) {
+			if (
+				// Update only if there is a change and you are not editing
+				!deepEqual(state.notas, notas.evaluaciones) &&
+				notas.evaluaciones &&
+				!state.editingNotas
+			) {
+				dispatch({
+					type: "updateNotas",
+					notas: notas.evaluaciones
+				});
+			}
+		}
+		if (ramo) {
+			if (
+				// Update only if there is a change and you are not editing
+				!deepEqual(state.ramo, ramo) &&
+				ramo.evaluaciones &&
+				!state.editingRamo
+			) {
+				dispatch({
+					type: "updateRamo",
+					ramo: ramo
+				});
+			}
+		}
+	});
 
-	const { evaluaciones, promedio } = transformEvaluaciones(ramoAux, notasAux);
+	let evaluacionesAux = state.ramo.evaluaciones;
+	let notasAux = state.notas;
+
+	const { evaluaciones, promedio } = transformEvaluaciones(
+		evaluacionesAux,
+		notasAux
+	);
 
 	return (
 		<ListaRamosItem sigla={sigla} nombre={nombre} nota={promedio}>
@@ -115,7 +147,9 @@ function Ramo(props) {
 								onClick={() =>
 									dispatch({
 										type: "guardarNotas",
-										ref: db.collection("notas").doc(notasRef.id),
+										ref: db
+											.collection("notas")
+											.doc(notasRef.id),
 										promedio
 									})
 								}
