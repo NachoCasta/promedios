@@ -3,8 +3,6 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import deepEqual from "deep-equal";
 
-import MenuItem from "@material-ui/core/MenuItem";
-
 import { db } from "components/firebase.js";
 import { useValue } from "components/Hooks/DocumentValue.jsx";
 import useNotasReducer from "components/Hooks/NotasReducer.jsx";
@@ -14,71 +12,11 @@ import {
 	ListaNotasItemWrapper
 } from "./ListaNotasWrapper.jsx";
 import ListaNotasMenu from "./ListaNotasMenu.jsx";
-import { ListaRamos, ListaRamosItem } from "./ListaRamos.jsx";
-import { SemestresNavPill, SemestreTab } from "./Semestres.jsx";
-import { getSemestres, reduceEvaluaciones } from "./utils.js";
+import { ListaRamosItem } from "./ListaRamos.jsx";
+import { reduceEvaluaciones } from "./utils.js";
 
-function RamosSection(props) {
-	const { user } = props;
-	if (!user) {
-		return null;
-	}
-	const semestres = getSemestres(user.notas);
-	return (
-		<SemestresNavPill scrollable scrollButtons="auto">
-			{semestres.map(([ano, semestre]) => (
-				<SemestreTab
-					key={ano + semestre}
-					semestre={ano + "-" + semestre}
-				>
-					<Semestre refs={user.notas[ano][semestre]} />
-				</SemestreTab>
-			))}
-		</SemestresNavPill>
-	);
-}
-
-RamosSection.propTypes = {
-	user: PropTypes.object.isRequired
-};
-
-function Semestre(props) {
-	const { refs } = props;
-	return (
-		<ListaRamos>
-			{refs.map((ref, i) => {
-				if (ref !== "null") {
-					return <Ramo key={i} notasRef={ref} />;
-				}
-				return null;
-			})}
-		</ListaRamos>
-	);
-}
-
-Semestre.propTypes = {
-	refs: PropTypes.array.isRequired
-};
-
-function Ramo(props) {
+export function Ramo(props) {
 	const { notasRef } = props;
-	let ref = props.notasRef;
-	if (notasRef.storage) {
-		ref = db.collection("notas").doc("null");
-	}
-
-	const notas = useValue(ref);
-	let ramoRef = db.collection("ramos").doc("null");
-	if (notas) {
-		if (notas.ramo) {
-			ramoRef = notas.ramo;
-		}
-	}
-	let ramo = useValue(ramoRef);
-
-	if (!ramo) {
-		ramo = {};
-	}
 
 	const [state, actions] = useNotasReducer(notasRef.id, {
 		notas: { evaluaciones: {} },
@@ -87,38 +25,19 @@ function Ramo(props) {
 		editingRamo: false
 	});
 
-	const { sigla, nombre } = state.ramo;
+	const notas = useValue(getNotasRef(notasRef));
+	const ramoRef = getRamoRef(notas);
+	const ramo = useValue(ramoRef);
+	useFirebase(notas, ramo, state, actions); // Syncs state with firestore database
 
-	useEffect(() => {
-		if (notas) {
-			if (
-				// Update only if there is a change and you are not editing
-				!deepEqual(state.notas, notas.evaluaciones) &&
-				notas.evaluaciones &&
-				!state.editingNotas
-			) {
-				actions.updateNotas({ notas: notas.evaluaciones })();
-			}
-		}
-		if (ramo) {
-			if (
-				// Update only if there is a change and you are not editing
-				!deepEqual(state.ramo, ramo) &&
-				ramo.evaluaciones &&
-				!state.editingRamo
-			) {
-				actions.updateRamo({ ramo })();
-			}
-		}
-	});
-
-	let evaluacionesAux = state.ramo.evaluaciones;
-	let notasAux = state.notas;
-
+	const evaluacionesAux = state.ramo.evaluaciones;
+	const notasAux = state.notas;
 	const { evaluaciones, promedio } = reduceEvaluaciones(
 		evaluacionesAux,
 		notasAux
 	);
+
+	const { sigla, nombre } = state.ramo;
 
 	return (
 		<ListaRamosItem sigla={sigla} nombre={nombre} nota={promedio}>
@@ -177,4 +96,45 @@ Ramo.propTypes = {
 	notasRef: PropTypes.object.isRequired
 };
 
-export default RamosSection;
+function useFirebase(notas, ramo, state, actions) {
+	useEffect(() => {
+		if (notas) {
+			if (
+				// Update only if there is a change and you are not editing
+				!deepEqual(state.notas, notas.evaluaciones) &&
+				notas.evaluaciones &&
+				!state.editingNotas
+			) {
+				actions.updateNotas({ notas: notas.evaluaciones })();
+			}
+		}
+		if (ramo) {
+			if (
+				// Update only if there is a change and you are not editing
+				!deepEqual(state.ramo, ramo) &&
+				ramo.evaluaciones &&
+				!state.editingRamo
+			) {
+				actions.updateRamo({ ramo })();
+			}
+		}
+	});
+}
+
+function getNotasRef(notasRef) {
+	let ref = notasRef;
+	if (notasRef.storage) {
+		ref = db.collection("notas").doc("null");
+	}
+	return ref;
+}
+
+function getRamoRef(notas) {
+	let ramoRef = db.collection("ramos").doc("null");
+	if (notas) {
+		if (notas.ramo) {
+			ramoRef = notas.ramo;
+		}
+	}
+	return ramoRef;
+}

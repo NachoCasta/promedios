@@ -1,1 +1,1 @@
-export { default as Ramos } from "./Ramos.jsx";
+export { default as Ramos } from "./RamosSection.jsx";
