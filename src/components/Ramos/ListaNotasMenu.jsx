@@ -9,7 +9,46 @@ import SaveIcon from "@material-ui/icons/Save";
 
 import { MenuButton } from "./ListaNotas.jsx";
 
-export class Mas extends React.Component {
+export default function ListaNotasMenu(props) {
+  const {
+    editingRamo,
+    editingNotas,
+    onClickGuardarNotas,
+    onClickCancelNotas,
+    onClickEditarNotas,
+    onClickGuardarRamo,
+    onClickCancelRamo,
+    onClickEditarRamo,
+    onClickBorrar
+  } = props;
+  return (
+    <React.Fragment>
+      {editingNotas ? (
+        <React.Fragment>
+          <Guardar onClick={onClickGuardarNotas} />
+          <Cancelar onClick={onClickCancelNotas} />
+        </React.Fragment>
+      ) : (
+        !editingRamo && <Editar onClick={onClickEditarNotas} />
+      )}
+      {editingRamo ? (
+        <React.Fragment>
+          <Guardar onClick={onClickGuardarRamo} />
+          <Cancelar onClick={onClickCancelRamo} />
+        </React.Fragment>
+      ) : (
+        !editingNotas && (
+          <Mas>
+            <MenuItem onClick={onClickEditarRamo}>Editar plantilla</MenuItem>
+            <MenuItem onClick={onClickBorrar}>Borrar ramo</MenuItem>
+          </Mas>
+        )
+      )}
+    </React.Fragment>
+  );
+}
+
+class Mas extends React.Component {
   state = {
     anchorEl: null
   };
@@ -48,19 +87,19 @@ export class Mas extends React.Component {
   }
 }
 
-export const Guardar = props => (
+const Guardar = props => (
   <MenuButton label="Guardar" {...props}>
     <SaveIcon />
   </MenuButton>
 );
 
-export const Cancelar = props => (
+const Cancelar = props => (
   <MenuButton label="Cancelar" {...props}>
     <CancelIcon />
   </MenuButton>
 );
 
-export const Editar = props => (
+const Editar = props => (
   <MenuButton label="Editar" {...props}>
     <EditIcon />
   </MenuButton>

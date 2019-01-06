@@ -22,6 +22,8 @@ import Grid from "@material-ui/core/Grid";
 
 import { lighten } from "@material-ui/core/styles/colorManipulator";
 
+import { titleCase, toPerc, toFloat } from "./utils.js";
+
 const CustomTableCell = withStyles(theme => ({
   /*head: {
     backgroundColor: theme.palette.common.black,
@@ -168,7 +170,7 @@ function ListaNotasConjuntoComponent(props) {
     nombre,
     ponderacion,
     nota,
-    editingNotas,
+    editing,
     onChangeNota,
     children,
     classes
@@ -178,9 +180,8 @@ function ListaNotasConjuntoComponent(props) {
       <TableRow selected className={classes.selected}>
         <CustomTableCell>{titleCase(nombre)}</CustomTableCell>
         <CustomTableCell>{toPerc(ponderacion)}</CustomTableCell>
-
         <CustomTableCell>
-          {editingNotas && !children ? (
+          {editing && !children ? (
             <TextField
               id="standard-bare"
               className={classes.textField}
@@ -242,26 +243,6 @@ ListaNotasItemComponent.propTypes = {
 ListaNotasItemComponent.defaultProps = {
   editing: false
 };
-
-function titleCase(str) {
-  var splitStr = str
-    .replace(/_/g, " ")
-    .toLowerCase()
-    .split(" ");
-  for (var i = 0; i < splitStr.length; i++) {
-    splitStr[i] =
-      splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
-  }
-  return splitStr.join(" ");
-}
-
-function toPerc(n) {
-  return (Math.round(n * 10) / 10).toString() + " %";
-}
-
-function toFloat(s) {
-  return s ? parseFloat(s).toFixed(1) : s;
-}
 
 const ListaNotas = withStyles(styles)(ListaNotasComponent);
 const ListaNotasConjunto = withStyles(styles)(ListaNotasConjuntoComponent);

@@ -1,29 +1,22 @@
 import React, { useEffect } from "react";
 
 import PropTypes from "prop-types";
+import deepEqual from "deep-equal";
 
 import MenuItem from "@material-ui/core/MenuItem";
 
-import { useValue } from "components/Hooks/DocumentValue.jsx";
-
-import useNotasReducer from "components/Hooks/NotasReducer.jsx";
-
 import { db } from "components/firebase.js";
-
-import deepEqual from "deep-equal";
-
+import { useValue } from "components/Hooks/DocumentValue.jsx";
+import useNotasReducer from "components/Hooks/NotasReducer.jsx";
+import { ListaNotas } from "./ListaNotas.jsx";
 import {
-	ListaNotas,
-	ListaNotasConjunto,
-	ListaNotasItem,
-	MenuButton
-} from "./ListaNotas.jsx";
-
-import { Mas, Guardar, Editar, Cancelar } from "./ListaNotasMenu.jsx";
-
+	ListaNotasConjuntoWrapper,
+	ListaNotasItemWrapper
+} from "./ListaNotasWrapper.jsx";
+import ListaNotasMenu from "./ListaNotasMenu.jsx";
 import { ListaRamos, ListaRamosItem } from "./ListaRamos.jsx";
-
 import { SemestresNavPill, SemestreTab } from "./Semestres.jsx";
+import { getSemestres, reduceEvaluaciones } from "./utils.js";
 
 function RamosSection(props) {
 	const { user } = props;
@@ -87,7 +80,7 @@ function Ramo(props) {
 		ramo = {};
 	}
 
-	const [state, dispatch] = useNotasReducer(notasRef.id, {
+	const [state, actions] = useNotasReducer(notasRef.id, {
 		notas: { evaluaciones: {} },
 		ramo: { evaluaciones: [] },
 		editingNotas: false,
@@ -104,10 +97,7 @@ function Ramo(props) {
 				notas.evaluaciones &&
 				!state.editingNotas
 			) {
-				dispatch({
-					type: "updateNotas",
-					notas: notas.evaluaciones
-				});
+				actions.updateNotas({ notas: notas.evaluaciones })();
 			}
 		}
 		if (ramo) {
@@ -117,10 +107,7 @@ function Ramo(props) {
 				ramo.evaluaciones &&
 				!state.editingRamo
 			) {
-				dispatch({
-					type: "updateRamo",
-					ramo: ramo
-				});
+				actions.updateRamo({ ramo })();
 			}
 		}
 	});
@@ -128,7 +115,7 @@ function Ramo(props) {
 	let evaluacionesAux = state.ramo.evaluaciones;
 	let notasAux = state.notas;
 
-	const { evaluaciones, promedio } = transformEvaluaciones(
+	const { evaluaciones, promedio } = reduceEvaluaciones(
 		evaluacionesAux,
 		notasAux
 	);
@@ -137,85 +124,49 @@ function Ramo(props) {
 		<ListaRamosItem sigla={sigla} nombre={nombre} nota={promedio}>
 			<ListaNotas
 				actions={
-					<React.Fragment>
-						{state.editingNotas ? (
-							<React.Fragment>
-								<Guardar
-									onClick={() =>
-										dispatch({
-											type: "guardarNotas",
-											ref: db
-												.collection("notas")
-												.doc(notasRef.id),
-											promedio
-										})
-									}
-								/>
-								<Cancelar
-									onClick={() =>
-										dispatch({ type: "toggleEdit" })
-									}
-								/>
-							</React.Fragment>
-						) : (
-							<Editar
-								onClick={() => dispatch({ type: "toggleEdit" })}
-							/>
-						)}
-						<Mas>
-							<MenuItem
-								onClick={() =>
-									dispatch({ type: "editarPlantilla" })
-								}
-							>
-								Editar plantilla
-							</MenuItem>
-							<MenuItem
-								onClick={() =>
-									dispatch({ type: "handleBorrar" })
-								}
-							>
-								Borrar ramo
-							</MenuItem>
-						</Mas>
-					</React.Fragment>
+					<ListaNotasMenu
+						editingNotas={state.editingNotas}
+						editingRamo={state.editingRamo}
+						onClickGuardarNotas={actions.guardarNotas({
+							ref: db.collection("notas").doc(notasRef.id),
+							promedio
+						})}
+						onClickCancelNotas={actions.cancelEditarNotas()}
+						onClickEditarNotas={actions.editarNotas()}
+						onClickGuardarRamo={actions.guardarRamo({
+							ref: db.collection("ramos").doc(ramoRef.id)
+						})}
+						onClickCancelRamo={actions.cancelEditarRamo()}
+						onClickEditarRamo={actions.editarRamo()}
+						onClickBorrar={actions.handleBorrar()}
+					/>
 				}
 			>
 				{evaluaciones.map((conjunto, i) => (
-					<ListaNotasConjunto
+					<ListaNotasConjuntoWrapper
 						key={i}
-						nombre={conjunto.nombre}
-						ponderacion={conjunto.ponderacion}
-						nota={conjunto.nota}
+						conjunto={conjunto}
+						planilla={evaluacionesAux[i]}
+						actions={actions}
 						editingNotas={state.editingNotas}
-						onChangeNota={e =>
-							dispatch({
-								type: "handleNotaChange",
-								conjunto: conjunto.nombre,
-								value: e.target.value,
-								unica: true
-							})
-						}
+						editingRamo={state.editingRamo}
 					>
 						{conjunto.evaluaciones &&
-							conjunto.evaluaciones.map((evaluacion, i) => (
-								<ListaNotasItem
-									key={i}
-									nombre={evaluacion.nombre}
-									ponderacion={evaluacion.ponderacion}
-									nota={evaluacion.nota}
-									editing={state.editingNotas}
-									onChangeNota={e =>
-										dispatch({
-											type: "handleNotaChange",
-											conjunto: conjunto.nombre,
-											evaluacion: evaluacion.nombre,
-											value: e.target.value
-										})
+							conjunto.evaluaciones.map((evaluacion, j) => (
+								<ListaNotasItemWrapper
+									key={j}
+									evaluacion={evaluacion}
+									tipo={evaluacionesAux[i].tipo}
+									plantilla={
+										evaluacionesAux[i].evaluaciones[j]
 									}
+									actions={actions}
+									editingNotas={state.editingNotas}
+									editingRamo={state.editingRamo}
+									nombreConjunto={conjunto.nombre}
 								/>
 							))}
-					</ListaNotasConjunto>
+					</ListaNotasConjuntoWrapper>
 				))}
 			</ListaNotas>
 		</ListaRamosItem>
@@ -225,84 +176,5 @@ function Ramo(props) {
 Ramo.propTypes = {
 	notasRef: PropTypes.object.isRequired
 };
-
-function getSemestres(notas) {
-	const semestresList = [];
-	for (const [ano, semestres] of Object.entries(notas)) {
-		for (const semestre of Object.keys(semestres)) {
-			semestresList.push([ano, semestre]);
-		}
-	}
-	return semestresList;
-}
-
-function transformEvaluaciones(plantilla, notas) {
-	const evaluaciones = plantilla.map(conjunto => {
-		let newEval = conjunto.evaluaciones;
-		let common = {
-			nombre: conjunto.nombre,
-			ponderacion: conjunto.porcentaje
-		};
-		let total = 0;
-		switch (conjunto.tipo) {
-			case "porcentaje":
-				break;
-			case "iguales":
-				total = conjunto.evaluaciones.length;
-				newEval = conjunto.evaluaciones.map(evaluacion => {
-					return {
-						...evaluacion,
-						ponderacion: 100 / total
-					};
-				});
-				break;
-			case "partes":
-				total = conjunto.evaluaciones
-					.map(evaluacion => evaluacion.peso)
-					.reduce((a, b) => a + b, 0);
-
-				newEval = conjunto.evaluaciones.map(evaluacion => {
-					return {
-						...evaluacion,
-						ponderacion: (100 * evaluacion.peso) / total
-					};
-				});
-				break;
-			case "unico":
-				return {
-					...common,
-					nota: notas[conjunto.nombre]
-				};
-			default:
-				throw Error("Tipo incorrecto: " + conjunto.tipo);
-		}
-		newEval = newEval.map(evaluacion => {
-			return {
-				...evaluacion,
-				nota: notas[conjunto.nombre][evaluacion.nombre]
-			};
-		});
-		return {
-			...common,
-			evaluaciones: newEval,
-			nota: calcNota(newEval)
-		};
-	});
-	const promedio = calcNota(evaluaciones).toFixed(2);
-	return { evaluaciones, promedio };
-}
-
-function calcNota(evaluaciones) {
-	let nota = 0;
-	let total = 0;
-	evaluaciones.map(evaluacion => {
-		if (evaluacion.nota !== "") {
-			total += parseFloat(evaluacion.ponderacion);
-			nota += (evaluacion.nota * evaluacion.ponderacion) / 100;
-		}
-		return null;
-	});
-	return (nota * 100) / total;
-}
 
 export default RamosSection;
