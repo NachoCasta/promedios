@@ -9,6 +9,7 @@
     "firebase": "^5.7.0",
     "node-sass": "^4.11.0",
     "react": "^16.7.0-alpha.2",
+    "react-beautiful-dnd": "^10.0.3",
     "react-device-detect": "^1.6.1",
     "react-dom": "^16.7.0-alpha.2",
     "react-firebase-hooks": "^0.4.0",

@@ -48,8 +48,8 @@ function readState() {
 }
 
 function stateToJson(state) {
-	for (const [ano, semestres] of Object.entries(state.notas)) {
-		for (const [semestre, ramos] of Object.entries(semestres)) {
+	for (const [, semestres] of Object.entries(state.notas)) {
+		for (const [, ramos] of Object.entries(semestres)) {
 			for (const ramo of ramos) {
 				ramo.toJSON = () => ({ storage: true, id: ramo.id });
 			}

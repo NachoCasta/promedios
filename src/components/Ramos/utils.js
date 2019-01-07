@@ -20,10 +20,16 @@ export function reduceEvaluaciones(plantilla, notas) {
 export function reduceConjunto(notas) {
 	return conjunto => {
 		if (conjunto.evaluaciones) {
-			let newEval = conjunto.evaluaciones.map(evaluacion => ({
-				...evaluacion,
-				nota: notas[conjunto.nombre][evaluacion.nombre]
-			}));
+			let newEval = conjunto.evaluaciones.map(evaluacion => {
+				if (notas[conjunto.nombre]) {
+					return {
+						...evaluacion,
+						nota: notas[conjunto.nombre][evaluacion.nombre]
+					};
+				} else {
+					return evaluacion;
+				}
+			});
 			return {
 				...conjunto,
 				evaluaciones: newEval,

@@ -15,6 +15,7 @@ import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
+import MenuItem from "@material-ui/core/MenuItem";
 
 import Grid from "@material-ui/core/Grid";
 
@@ -29,7 +30,9 @@ const CustomTableCell = withStyles(theme => ({
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white
   },*/
-  body: {}
+  body: {
+    padding: "0px 24px"
+  }
 }))(TableCell);
 const toolbarStyles = theme => ({
   root: {
@@ -124,13 +127,24 @@ const styles = theme => ({
   table: {
     minWidth: 500
   },
-  textField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+  numberField: {
+    //marginLeft: theme.spacing.unit,
+    //marginRight: theme.spacing.unit,
     width: 50
   },
+  textField: {
+    //marginLeft: theme.spacing.unit,
+    //marginRight: theme.spacing.unit,
+    width: "100%"
+  },
+  tipoField: {
+    //marginLeft: theme.spacing.unit,
+    //marginRight: theme.spacing.unit,
+    width: 100
+  },
   input: {
-    padding: "6px 12px"
+    padding: "6px 12px",
+    fontSize: "0.8125rem"
   },
   tableWrapper: {
     overflowX: "auto",
@@ -138,11 +152,12 @@ const styles = theme => ({
   },
   item: {
     paddingLeft: "40px"
-  }
+  },
+  menu: {}
 });
 
 function ListaNotasComponent(props) {
-  const { children, classes, actions } = props;
+  const { children, classes, actions, editingRamo } = props;
   return (
     <Paper className={classes.root}>
       <ListaNotasMenu>{actions}</ListaNotasMenu>
@@ -152,7 +167,7 @@ function ListaNotasComponent(props) {
             <TableRow>
               <CustomTableCell>Evaluación</CustomTableCell>
               <CustomTableCell>Ponderación</CustomTableCell>
-              <CustomTableCell>Nota</CustomTableCell>
+              <CustomTableCell>{editingRamo ? "Tipo" : "Nota"}</CustomTableCell>
             </TableRow>
           </TableHead>
           <TableBody>{children}</TableBody>
@@ -170,30 +185,48 @@ function ListaNotasConjuntoComponent(props) {
     nombre,
     ponderacion,
     nota,
-    editing,
+    editingRamo,
+    editingNotas,
     onChangeNota,
+    onChangeNombre,
+    onChangePonderacion,
+    onChangeTipo,
     children,
-    classes
+    classes,
+    tipo
   } = props;
   return (
     <React.Fragment>
       <TableRow selected className={classes.selected}>
-        <CustomTableCell>{titleCase(nombre)}</CustomTableCell>
-        <CustomTableCell>{toPerc(ponderacion)}</CustomTableCell>
         <CustomTableCell>
-          {editing && !children ? (
-            <TextField
-              id="standard-bare"
-              className={classes.textField}
-              inputProps={{ className: classes.input }}
-              value={nota}
+          {editingRamo ? (
+            <TextInputField
+              value={titleCase(nombre)}
               max={7}
-              margin="normal"
-              onChange={onChangeNota}
-              variant="filled"
+              onChange={onChangeNombre}
             />
           ) : (
-            toFloat(nota)
+            titleCase(nombre)
+          )}
+        </CustomTableCell>
+        <CustomTableCell>
+          {editingRamo ? (
+            <NumberInputField
+              value={ponderacion}
+              onChange={onChangePonderacion}
+            />
+          ) : (
+            toPerc(ponderacion)
+          )}
+        </CustomTableCell>
+        <CustomTableCell>
+          {editingNotas && !children ? (
+            <NumberInputField value={nota} onChange={onChangeNota} />
+          ) : (
+            !editingRamo && toFloat(nota)
+          )}
+          {editingRamo && (
+            <TipoInputField value={tipo} onChange={onChangeTipo} />
           )}
         </CustomTableCell>
       </TableRow>
@@ -207,29 +240,46 @@ ListaNotasConjuntoComponent.propTypes = {
 };
 
 function ListaNotasItemComponent(props) {
-  const { nombre, ponderacion, nota, classes, editing, onChangeNota } = props;
+  const {
+    nombre,
+    ponderacion,
+    nota,
+    classes,
+    editingRamo,
+    editingNotas,
+    onChangeNota,
+    onChangeNombre,
+    onChangePonderacion,
+    input
+  } = props;
   return (
     <TableRow>
       <CustomTableCell className={classes.item}>
-        {titleCase(nombre)}
-      </CustomTableCell>
-      <CustomTableCell className={classes.item}>
-        {toPerc(ponderacion)}
-      </CustomTableCell>
-      <CustomTableCell className={classes.item}>
-        {editing ? (
-          <TextField
-            id="standard-bare"
-            className={classes.textField}
-            inputProps={{ className: classes.input }}
-            value={nota}
+        {editingRamo ? (
+          <TextInputField
+            value={titleCase(nombre)}
             max={7}
-            margin="normal"
-            onChange={onChangeNota}
-            variant="filled"
+            onChange={onChangeNombre}
           />
         ) : (
-          toFloat(nota)
+          titleCase(nombre)
+        )}
+      </CustomTableCell>
+      <CustomTableCell className={classes.item}>
+        {editingRamo && input ? (
+          <NumberInputField
+            value={ponderacion}
+            onChange={onChangePonderacion}
+          />
+        ) : (
+          toPerc(ponderacion)
+        )}
+      </CustomTableCell>
+      <CustomTableCell className={classes.item}>
+        {editingNotas ? (
+          <NumberInputField value={nota} max={7} onChange={onChangeNota} />
+        ) : (
+          !editingRamo && toFloat(nota)
         )}
       </CustomTableCell>
     </TableRow>
@@ -240,9 +290,54 @@ ListaNotasItemComponent.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-ListaNotasItemComponent.defaultProps = {
-  editing: false
-};
+const NumberInputField = withStyles(styles)(({ classes, ...rest }) => (
+  <TextField
+    id="standard-bare"
+    className={classes.numberField}
+    inputProps={{ className: classes.input }}
+    variant="outlined"
+    {...rest}
+  />
+));
+
+const TextInputField = withStyles(styles)(({ classes, ...rest }) => (
+  <TextField
+    id="standard-bare"
+    className={classes.textField}
+    inputProps={{ className: classes.input }}
+    variant="outlined"
+    {...rest}
+  />
+));
+
+const tipos = [
+  { value: "porcentaje", label: "Porcentaje" },
+  { value: "iguales", label: "Iguales" },
+  { value: "partes", label: "Partes" },
+  { value: "unico", label: "Unico" }
+];
+
+const TipoInputField = withStyles(styles)(({ classes, ...rest }) => (
+  <TextField
+    id="standard-bare"
+    select
+    className={classes.tipoField}
+    inputProps={{ className: classes.input }}
+    variant="outlined"
+    SelectProps={{
+      MenuProps: {
+        className: classes.menu
+      }
+    }}
+    {...rest}
+  >
+    {tipos.map(option => (
+      <MenuItem key={option.value} value={option.value}>
+        {option.label}
+      </MenuItem>
+    ))}
+  </TextField>
+));
 
 const ListaNotas = withStyles(styles)(ListaNotasComponent);
 const ListaNotasConjunto = withStyles(styles)(ListaNotasConjuntoComponent);

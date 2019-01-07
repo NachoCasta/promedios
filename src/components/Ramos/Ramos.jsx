@@ -6,8 +6,8 @@ import deepEqual from "deep-equal";
 import { db } from "components/firebase.js";
 import { useValue } from "components/Hooks/DocumentValue.jsx";
 import useNotasReducer from "components/Hooks/NotasReducer.jsx";
-import { ListaNotas } from "./ListaNotas.jsx";
 import {
+	ListaNotasWrapper,
 	ListaNotasConjuntoWrapper,
 	ListaNotasItemWrapper
 } from "./ListaNotasWrapper.jsx";
@@ -41,7 +41,8 @@ export function Ramo(props) {
 
 	return (
 		<ListaRamosItem sigla={sigla} nombre={nombre} nota={promedio}>
-			<ListaNotas
+			<ListaNotasWrapper
+				editingRamo={state.editingRamo}
 				actions={
 					<ListaNotasMenu
 						editingNotas={state.editingNotas}
@@ -65,10 +66,11 @@ export function Ramo(props) {
 					<ListaNotasConjuntoWrapper
 						key={i}
 						conjunto={conjunto}
-						planilla={evaluacionesAux[i]}
+						plantilla={evaluacionesAux[i]}
 						actions={actions}
 						editingNotas={state.editingNotas}
 						editingRamo={state.editingRamo}
+						conjuntoIndex={i}
 					>
 						{conjunto.evaluaciones &&
 							conjunto.evaluaciones.map((evaluacion, j) => (
@@ -83,11 +85,13 @@ export function Ramo(props) {
 									editingNotas={state.editingNotas}
 									editingRamo={state.editingRamo}
 									nombreConjunto={conjunto.nombre}
+									conjuntoIndex={i}
+									evaluacionIndex={j}
 								/>
 							))}
 					</ListaNotasConjuntoWrapper>
 				))}
-			</ListaNotas>
+			</ListaNotasWrapper>
 		</ListaRamosItem>
 	);
 }

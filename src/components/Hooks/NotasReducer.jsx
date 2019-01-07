@@ -12,8 +12,27 @@ export default function useNotasReducer(key, initialState) {
             editarRamo: () => () => dispatch({ type: "editarRamo" }),
             cancelEditarRamo: () => () =>
                 dispatch({ type: "cancelEditarRamo" }),
-            handleNombreChange: () => null,
-            handlePonderacionChange: () => null,
+            handleNombreChange: ({ conjunto, evaluacion }) => e =>
+                dispatch({
+                    type: "handleNombreChange",
+                    conjunto,
+                    evaluacion,
+                    nombre: snakeCase(e.target.value)
+                }),
+            handlePonderacionChange: ({ conjunto, evaluacion, tipo }) => e =>
+                dispatch({
+                    type: "handlePonderacionChange",
+                    conjunto,
+                    evaluacion,
+                    tipo,
+                    value: e.target.value
+                }),
+            handleTipoChange: ({ conjunto }) => e =>
+                dispatch({
+                    type: "handleTipoChange",
+                    conjunto,
+                    value: e.target.value
+                }),
             handleNotaChange: ({ conjunto, unica, evaluacion }) => e =>
                 dispatch({
                     type: "handleNotaChange",
@@ -39,6 +58,7 @@ export default function useNotasReducer(key, initialState) {
 function reducer(state, action) {
     console.log(action);
     let nota;
+    const evaluaciones = JSON.parse(JSON.stringify(state.ramo.evaluaciones));
     switch (action.type) {
         case "editarNotas":
             return {
@@ -94,6 +114,73 @@ function reducer(state, action) {
                         }
                     };
             }
+        case "handleNombreChange":
+            switch (action.evaluacion) {
+                case undefined:
+                    evaluaciones[action.conjunto].nombre = action.nombre;
+                    return {
+                        ...state,
+                        ramo: {
+                            ...state.ramo,
+                            evaluaciones
+                        }
+                    };
+                default:
+                    evaluaciones[action.conjunto].evaluaciones[
+                        action.evaluacion
+                    ].nombre = action.nombre;
+                    return {
+                        ...state,
+                        ramo: {
+                            ...state.ramo,
+                            evaluaciones
+                        }
+                    };
+            }
+        case "handlePonderacionChange":
+            const keys = {
+                porcentaje: "ponderacion",
+                partes: "peso"
+            };
+            switch (action.evaluacion) {
+                case undefined:
+                    evaluaciones[action.conjunto].porcentaje = action.value;
+                    return {
+                        ...state,
+                        ramo: {
+                            ...state.ramo,
+                            evaluaciones
+                        }
+                    };
+                default:
+                    evaluaciones[action.conjunto].evaluaciones[
+                        action.evaluacion
+                    ][keys[action.tipo]] = action.value;
+                    return {
+                        ...state,
+                        ramo: {
+                            ...state.ramo,
+                            evaluaciones
+                        }
+                    };
+            }
+        case "handleTipoChange":
+            evaluaciones[action.conjunto].tipo = action.value;
+            return {
+                ...state,
+                ramo: {
+                    ...state.ramo,
+                    evaluaciones
+                }
+            };
+        case "handleRamoKeyChange":
+            return {
+                ...state,
+                ramo: {
+                    ...state.ramo,
+                    [action.key]: action.value
+                }
+            };
         case "guardarNotas":
             action.ref.update({
                 evaluaciones: state.notas,
@@ -104,8 +191,7 @@ function reducer(state, action) {
                 editingNotas: false
             };
         case "guardarRamo":
-            //action.ref.update(state.ramo);
-            console.log(state.ramo);
+            action.ref.update(state.ramo);
             return {
                 ...state,
                 editingRamo: false
@@ -123,4 +209,8 @@ function reducer(state, action) {
         default:
             return state;
     }
+}
+
+function snakeCase(str) {
+    return str.replace(/ /g, "_").toLowerCase();
 }

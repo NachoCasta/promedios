@@ -2,8 +2,6 @@ import { auth, getAuth } from "../firebase";
 
 import { isMobile } from "react-device-detect";
 
-import { history } from "App.js";
-
 import { db } from "components/firebase.js";
 
 export function login(provider) {
