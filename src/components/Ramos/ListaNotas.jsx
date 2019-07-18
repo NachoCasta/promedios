@@ -19,6 +19,9 @@ import MenuItem from "@material-ui/core/MenuItem";
 
 import Grid from "@material-ui/core/Grid";
 
+import RootRef from "@material-ui/core/RootRef";
+
+import { Agregar, Eliminar } from "./ListaNotasMenu.jsx";
 //import DeleteIcon from "@material-ui/icons/Delete";
 
 import { lighten } from "@material-ui/core/styles/colorManipulator";
@@ -94,15 +97,19 @@ export const ListaNotasMenu = withStyles(toolbarStyles)(
   ListaNotasMenuComponent
 );
 
-const buttonStyles = theme => ({});
+const buttonStyles = theme => ({
+  tableButton: {
+    padding: 3
+  }
+});
 
 let MenuButtonComponent = props => {
-  const { classes, children, onClick, label, ...rest } = props;
+  const { classes, children, onClick, label, table, ...rest } = props;
 
   return (
     <Tooltip title={label} className={classes.tooltip}>
       <IconButton
-        className={classes.button}
+        className={table ? classes.tableButton : classes.button}
         onClick={onClick}
         aria-label={label}
         {...rest}
@@ -153,25 +160,30 @@ const styles = theme => ({
   item: {
     paddingLeft: "40px"
   },
-  menu: {}
+  menu: {},
+  finalCell: { width: "40%" }
 });
 
 function ListaNotasComponent(props) {
-  const { children, classes, actions, editingRamo } = props;
+  const { children, classes, actions, editingRamo, providedRef } = props;
   return (
     <Paper className={classes.root}>
       <ListaNotasMenu>{actions}</ListaNotasMenu>
       <div className={classes.tableWrapper}>
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow>
-              <CustomTableCell>Evaluación</CustomTableCell>
-              <CustomTableCell>Ponderación</CustomTableCell>
-              <CustomTableCell>{editingRamo ? "Tipo" : "Nota"}</CustomTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>{children}</TableBody>
-        </Table>
+        <RootRef rootRef={providedRef}>
+          <Table className={classes.table}>
+            <TableHead>
+              <TableRow>
+                <CustomTableCell>Evaluación</CustomTableCell>
+                <CustomTableCell>Ponderación</CustomTableCell>
+                <CustomTableCell>
+                  {editingRamo ? "Tipo" : "Nota"}
+                </CustomTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>{children}</TableBody>
+          </Table>
+        </RootRef>
       </div>
     </Paper>
   );
@@ -180,59 +192,70 @@ ListaNotasComponent.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-function ListaNotasConjuntoComponent(props) {
-  const {
-    nombre,
-    ponderacion,
-    nota,
-    editingRamo,
-    editingNotas,
-    onChangeNota,
-    onChangeNombre,
-    onChangePonderacion,
-    onChangeTipo,
-    children,
-    classes,
-    tipo
-  } = props;
-  return (
-    <React.Fragment>
-      <TableRow selected className={classes.selected}>
-        <CustomTableCell>
-          {editingRamo ? (
-            <TextInputField
-              value={titleCase(nombre)}
-              max={7}
-              onChange={onChangeNombre}
-            />
-          ) : (
-            titleCase(nombre)
-          )}
-        </CustomTableCell>
-        <CustomTableCell>
-          {editingRamo ? (
-            <NumberInputField
-              value={ponderacion}
-              onChange={onChangePonderacion}
-            />
-          ) : (
-            toPerc(ponderacion)
-          )}
-        </CustomTableCell>
-        <CustomTableCell>
-          {editingNotas && !children ? (
-            <NumberInputField value={nota} onChange={onChangeNota} />
-          ) : (
-            !editingRamo && toFloat(nota)
-          )}
-          {editingRamo && (
-            <TipoInputField value={tipo} onChange={onChangeTipo} />
-          )}
-        </CustomTableCell>
-      </TableRow>
-      {children}
-    </React.Fragment>
-  );
+class ListaNotasConjuntoComponent extends React.Component {
+  render() {
+    const {
+      nombre,
+      ponderacion,
+      nota,
+      editingRamo,
+      editingNotas,
+      onChangeNota,
+      onChangeNombre,
+      onChangePonderacion,
+      onChangeTipo,
+      onAddEvaluacion,
+      onEliminar,
+      children,
+      classes,
+      tipo,
+      ...rest
+    } = this.props;
+    return (
+      <React.Fragment>
+        <MyTableRow selected className={classes.selected} {...rest}>
+          <CustomTableCell>
+            {editingRamo ? (
+              <TextInputField
+                value={titleCase(nombre)}
+                max={7}
+                onChange={onChangeNombre}
+              />
+            ) : (
+              titleCase(nombre)
+            )}
+          </CustomTableCell>
+          <CustomTableCell>
+            {editingRamo ? (
+              <NumberInputField
+                value={ponderacion}
+                onChange={onChangePonderacion}
+              />
+            ) : (
+              toPerc(ponderacion)
+            )}
+          </CustomTableCell>
+          <CustomTableCell className={editingRamo ? classes.finalCell : ""}>
+            {editingNotas && tipo !== "unico" ? (
+              <NumberInputField value={nota} onChange={onChangeNota} />
+            ) : (
+              !editingRamo && toFloat(nota)
+            )}
+            {editingRamo && (
+              <React.Fragment>
+                <TipoInputField value={tipo} onChange={onChangeTipo} />
+                {tipo !== "unico" && (
+                  <Agregar table={true} onClick={onAddEvaluacion} />
+                )}
+                <Eliminar color="error" table={true} onClick={onEliminar} />
+              </React.Fragment>
+            )}
+          </CustomTableCell>
+        </MyTableRow>
+        {children}
+      </React.Fragment>
+    );
+  }
 }
 
 ListaNotasConjuntoComponent.propTypes = {
@@ -250,10 +273,12 @@ function ListaNotasItemComponent(props) {
     onChangeNota,
     onChangeNombre,
     onChangePonderacion,
-    input
+    onEliminar,
+    input,
+    ...rest
   } = props;
   return (
-    <TableRow>
+    <MyTableRow {...rest}>
       <CustomTableCell className={classes.item}>
         {editingRamo ? (
           <TextInputField
@@ -278,11 +303,13 @@ function ListaNotasItemComponent(props) {
       <CustomTableCell className={classes.item}>
         {editingNotas ? (
           <NumberInputField value={nota} max={7} onChange={onChangeNota} />
+        ) : editingRamo ? (
+          <Eliminar table={true} onClick={onEliminar} />
         ) : (
-          !editingRamo && toFloat(nota)
+          toFloat(nota)
         )}
       </CustomTableCell>
-    </TableRow>
+    </MyTableRow>
   );
 }
 
@@ -338,6 +365,17 @@ const TipoInputField = withStyles(styles)(({ classes, ...rest }) => (
     ))}
   </TextField>
 ));
+
+class MyTableRow extends React.Component {
+  render() {
+    const { providedRef, children, ...rest } = this.props;
+    return (
+      <RootRef rootRef={providedRef}>
+        <TableRow {...rest}>{children}</TableRow>
+      </RootRef>
+    );
+  }
+}
 
 const ListaNotas = withStyles(styles)(ListaNotasComponent);
 const ListaNotasConjunto = withStyles(styles)(ListaNotasConjuntoComponent);

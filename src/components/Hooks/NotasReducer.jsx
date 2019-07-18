@@ -50,7 +50,18 @@ export default function useNotasReducer(key, initialState) {
             updateRamo: ({ ramo }) => () =>
                 dispatch({ type: "updateRamo", ramo }),
             editarPlantilla: () => () => dispatch({ type: "editarPlantilla" }),
-            handleBorrar: () => () => dispatch({ type: "handleBorrar" })
+            handleBorrar: () => () => dispatch({ type: "handleBorrar" }),
+            handleOrdenar: ({ value }) => () =>
+                dispatch({ type: "handleOrdenar", value }),
+            agregarConjunto: () => () => dispatch({ type: "agregarConjunto" }),
+            agregarEvaluacion: ({ conjunto }) => () =>
+                dispatch({ type: "agregarEvaluacion", conjunto }),
+            eliminarConjunto: ({ conjunto }) => () =>
+                dispatch({ type: "eliminarConjunto", conjunto }),
+            eliminarEvaluacion: ({ conjunto, evaluacion }) => () =>
+                dispatch({ type: "eliminarEvaluacion", conjunto, evaluacion }),
+            handleDragEnd: ({ reverse }) => result =>
+                dispatch({ type: "onDragEnd", result, reverse })
         }
     ];
 }
@@ -82,6 +93,7 @@ function reducer(state, action) {
             return {
                 ...state,
                 editingRamo: false,
+                sortingRamo: false,
                 ramo: state.respaldoRamo
             };
         case "handleNotaChange":
@@ -206,6 +218,77 @@ function reducer(state, action) {
                 ...state,
                 ramo: action.ramo
             };
+        case "onDragEnd":
+            switch (action.result.destination) {
+                case null:
+                    return state;
+                default:
+                    const desde = action.reverse[action.result.source.index];
+                    const hacia =
+                        action.reverse[action.result.destination.index];
+                    console.log(desde, hacia);
+                    return state;
+            }
+        case "handleOrdenar":
+            return {
+                ...state,
+                sortingRamo: action.value
+            };
+        case "agregarConjunto":
+            evaluaciones.push({ nombre: "", porcentaje: 0, tipo: "unico" });
+            return {
+                ...state,
+                ramo: {
+                    ...state.ramo,
+                    evaluaciones: evaluaciones
+                }
+            };
+        case "agregarEvaluacion":
+            const newEvaluacion = { nombre: "" };
+            switch (evaluaciones[action.conjunto].tipo) {
+                case "porcentaje":
+                    newEvaluacion.ponderacion = 100;
+                    break;
+                case "iguales":
+                    break;
+                case "partes":
+                    newEvaluacion.peso = 1;
+                    break;
+                default:
+                    throw Error(
+                        "No se puede agregar evaluaciones a este tipo de conjunto: " +
+                            evaluaciones[action.conjunto].tipo
+                    );
+            }
+            evaluaciones[action.conjunto].evaluaciones.push(newEvaluacion);
+            return {
+                ...state,
+                ramo: {
+                    ...state.ramo,
+                    evaluaciones
+                }
+            };
+        case "eliminarConjunto":
+            evaluaciones.splice(action.conjunto, 1);
+            return {
+                ...state,
+                ramo: {
+                    ...state.ramo,
+                    evaluaciones
+                }
+            };
+        case "eliminarEvaluacion":
+            evaluaciones[action.conjunto].evaluaciones.splice(
+                action.evaluacion,
+                1
+            );
+            return {
+                ...state,
+                ramo: {
+                    ...state.ramo,
+                    evaluaciones
+                }
+            };
         default:
             return state;
     }
@@ -214,3 +297,11 @@ function reducer(state, action) {
 function snakeCase(str) {
     return str.replace(/ /g, "_").toLowerCase();
 }
+
+const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+};

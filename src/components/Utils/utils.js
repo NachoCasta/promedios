@@ -1,25 +1,35 @@
-export function isEquivalent(a, b) {
-	// Create arrays of property names
-	var aProps = Object.getOwnPropertyNames(a);
-	var bProps = Object.getOwnPropertyNames(b);
+import React from "react";
 
-	// If number of properties is different,
-	// objects are not equivalent
-	if (aProps.length != bProps.length) {
-		return false;
+export class ErrorBoundary extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = { error: null, errorInfo: null };
 	}
 
-	for (var i = 0; i < aProps.length; i++) {
-		var propName = aProps[i];
+	componentDidCatch(error, errorInfo) {
+		// Catch errors in any components below and re-render with error message
+		this.setState({
+			error: error,
+			errorInfo: errorInfo
+		});
+		// You can also log error messages to an error reporting service here
+	}
 
-		// If values of same property are not equal,
-		// objects are not equivalent
-		if (a[propName] !== b[propName]) {
-			return false;
+	render() {
+		if (this.state.errorInfo) {
+			// Error path
+			return (
+				<div>
+					<h2>Something went wrong.</h2>
+					<details style={{ whiteSpace: "pre-wrap" }}>
+						{this.state.error && this.state.error.toString()}
+						<br />
+						{this.state.errorInfo.componentStack}
+					</details>
+				</div>
+			);
 		}
+		// Normally, just render children
+		return this.props.children;
 	}
-
-	// If we made it this far, objects
-	// are considered equivalent
-	return true;
 }

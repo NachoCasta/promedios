@@ -22,7 +22,8 @@ export function Ramo(props) {
 		notas: { evaluaciones: {} },
 		ramo: { evaluaciones: [] },
 		editingNotas: false,
-		editingRamo: false
+		editingRamo: false,
+		sortingRamo: false
 	});
 
 	const notas = useValue(getNotasRef(notasRef));
@@ -43,10 +44,12 @@ export function Ramo(props) {
 		<ListaRamosItem sigla={sigla} nombre={nombre} nota={promedio}>
 			<ListaNotasWrapper
 				editingRamo={state.editingRamo}
+				reducerActions={actions}
 				actions={
 					<ListaNotasMenu
 						editingNotas={state.editingNotas}
 						editingRamo={state.editingRamo}
+						sortingRamo={state.sortingRamo}
 						onClickGuardarNotas={actions.guardarNotas({
 							ref: db.collection("notas").doc(notasRef.id),
 							promedio
@@ -59,6 +62,10 @@ export function Ramo(props) {
 						onClickCancelRamo={actions.cancelEditarRamo()}
 						onClickEditarRamo={actions.editarRamo()}
 						onClickBorrar={actions.handleBorrar()}
+						onClickOrdenar={actions.handleOrdenar({
+							value: !state.sortingRamo
+						})}
+						onClickAgregar={actions.agregarConjunto()}
 					/>
 				}
 			>

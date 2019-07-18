@@ -9,7 +9,8 @@ import {
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 export function ListaNotasWrapper(props) {
-	const { ...rest } = props;
+	const { reducerActions, ...rest } = props;
+	const actions = reducerActions;
 	return <ListaNotas {...rest} />;
 }
 
@@ -27,9 +28,7 @@ export function ListaNotasConjuntoWrapper(props) {
 	return (
 		<ListaNotasConjunto
 			nombre={conjunto.nombre}
-			ponderacion={
-				editingRamo ? plantilla.porcentaje : conjunto.ponderacion
-			}
+			ponderacion={editingRamo ? plantilla.porcentaje : conjunto.ponderacion}
 			nota={conjunto.nota}
 			editingRamo={editingRamo}
 			tipo={plantilla.tipo}
@@ -47,6 +46,8 @@ export function ListaNotasConjuntoWrapper(props) {
 			onChangeTipo={actions.handleTipoChange({
 				conjunto: conjuntoIndex
 			})}
+			onAddEvaluacion={actions.agregarEvaluacion({ conjunto: conjuntoIndex })}
+			onEliminar={actions.eliminarConjunto({ conjunto: conjuntoIndex })}
 			{...rest}
 		>
 			{children}
@@ -86,6 +87,10 @@ export function ListaNotasItemWrapper(props) {
 				conjunto: conjuntoIndex,
 				evaluacion: evaluacionIndex,
 				tipo
+			})}
+			onEliminar={actions.eliminarEvaluacion({
+				conjunto: conjuntoIndex,
+				evaluacion: evaluacionIndex
 			})}
 			{...rest}
 		/>

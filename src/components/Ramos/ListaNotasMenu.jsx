@@ -5,7 +5,10 @@ import MenuItem from "@material-ui/core/MenuItem";
 
 import CancelIcon from "@material-ui/icons/Cancel";
 import EditIcon from "@material-ui/icons/Edit";
+import ReorderIcon from "@material-ui/icons/Reorder";
 import SaveIcon from "@material-ui/icons/Save";
+import AddCircle from "@material-ui/icons/AddCircle";
+import Delete from "@material-ui/icons/Delete";
 
 import { MenuButton } from "./ListaNotas.jsx";
 
@@ -13,13 +16,16 @@ export default function ListaNotasMenu(props) {
   const {
     editingRamo,
     editingNotas,
+    sortingRamo,
     onClickGuardarNotas,
     onClickCancelNotas,
     onClickEditarNotas,
     onClickGuardarRamo,
+    onClickOrdenar,
     onClickCancelRamo,
     onClickEditarRamo,
-    onClickBorrar
+    onClickBorrar,
+    onClickAgregar
   } = props;
   return (
     <React.Fragment>
@@ -34,6 +40,8 @@ export default function ListaNotasMenu(props) {
       {editingRamo ? (
         <React.Fragment>
           <Guardar onClick={onClickGuardarRamo} />
+          <Agregar onClick={onClickAgregar} />
+          <Ordenar sortingRamo={sortingRamo} onClick={onClickOrdenar} />
           <Cancelar onClick={onClickCancelRamo} />
         </React.Fragment>
       ) : (
@@ -90,6 +98,24 @@ class Mas extends React.Component {
 const Guardar = props => (
   <MenuButton label="Guardar" {...props}>
     <SaveIcon />
+  </MenuButton>
+);
+
+export const Agregar = props => (
+  <MenuButton label="Agregar" {...props}>
+    <AddCircle />
+  </MenuButton>
+);
+
+export const Eliminar = ({ color, ...props }) => (
+  <MenuButton label="Eliminar" {...props}>
+    <Delete color={color} />
+  </MenuButton>
+);
+
+const Ordenar = ({ sortingRamo, ...rest }) => (
+  <MenuButton label="Cambiar orden" {...rest}>
+    <ReorderIcon color={sortingRamo ? "primary" : ""} />
   </MenuButton>
 );
 

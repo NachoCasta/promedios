@@ -65,6 +65,9 @@ export function transformConjunto(conjunto) {
 			break;
 		case "partes":
 			// Sum of all weights
+			if (!conjunto.evaluaciones) {
+				conjunto.evaluaciones = [];
+			}
 			total = conjunto.evaluaciones
 				.map(evaluacion => evaluacion.peso)
 				.reduce((a, b) => a + b, 0);
@@ -126,4 +129,40 @@ export function toPerc(n) {
 
 export function toFloat(s) {
 	return s ? parseFloat(s).toFixed(1) : s;
+}
+
+export function getIndexes(evaluaciones) {
+	const conjuntosIndexes = {};
+	const evaluacionesIndexes = {};
+	var [counter, i, j] = [0, 0, 0];
+
+	for (const conjunto of evaluaciones) {
+		conjuntosIndexes[i] = counter;
+		evaluacionesIndexes[i] = {};
+		j = 0;
+		if (conjunto.evaluaciones) {
+			for (const evaluacion of conjunto.evaluaciones) {
+				counter++;
+				evaluacionesIndexes[i][j] = counter;
+				j++;
+			}
+		}
+		counter++;
+		i++;
+	}
+
+	return { conjuntos: conjuntosIndexes, evaluaciones: evaluacionesIndexes };
+}
+
+export function reverseIndexes(indexes) {
+	const reverse = {};
+	for (const [conj, value] of Object.entries(indexes.conjuntos)) {
+		reverse[value] = { i: conj };
+	}
+	for (const [conj, evaluaciones] of Object.entries(indexes.evaluaciones)) {
+		for (const [ev, value] of Object.entries(evaluaciones)) {
+			reverse[value] = { i: conj, j: ev };
+		}
+	}
+	return reverse;
 }
